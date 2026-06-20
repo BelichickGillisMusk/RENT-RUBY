@@ -30,7 +30,8 @@ import {
   Activity,
   FileText,
   Mail,
-  Wrench
+  Wrench,
+  LayoutGrid
 } from 'lucide-react';
 import { 
   AreaChart, 
