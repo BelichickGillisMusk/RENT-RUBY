@@ -40,12 +40,18 @@ Use these environment variables in production:
 
 This repo includes a `Dockerfile` compatible with Cloud Run.
 
+Set the canonical domain first. Current DNS checks show `rent-ruby.com` exists,
+while `rent-rubyl.com` does not resolve and must be registered/configured
+before it can be mapped.
+
 ```bash
+export CANONICAL_DOMAIN=rent-ruby.com
+
 gcloud run deploy rent-ruby \
   --source . \
   --region us-central1 \
   --allow-unauthenticated \
-  --set-env-vars APP_URL=https://rent-ruby.com,DATABASE_PATH=/data/rentroll_v3.db \
+  --set-env-vars APP_URL=https://${CANONICAL_DOMAIN},DATABASE_PATH=/data/rentroll_v3.db \
   --set-secrets GEMINI_API_KEY=GEMINI_API_KEY:latest
 ```
 
@@ -54,13 +60,11 @@ After the service is healthy, map the custom domain in Cloud Run:
 ```bash
 gcloud run domain-mappings create \
   --service rent-ruby \
-  --domain rent-ruby.com \
+  --domain ${CANONICAL_DOMAIN} \
   --region us-central1
 ```
 
-Then add the DNS records returned by Google Cloud for the domain. If the domain
-is actually `rent-rubyl.com`, use that value for `APP_URL` and the domain
-mapping instead.
+Then add the DNS records returned by Google Cloud for the domain.
 
 ## Deployment notes
 

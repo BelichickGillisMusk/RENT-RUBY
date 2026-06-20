@@ -1,4 +1,4 @@
-import express from "express";
+import express, { type Request } from "express";
 import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
 import fs from "fs";
@@ -16,6 +16,39 @@ if (databaseDir !== "." && !fs.existsSync(databaseDir)) {
 }
 
 const db = new Database(databasePath);
+
+const LEGAL_LIBRARY_USAGE_WINDOW_MS = 60 * 1000;
+const LEGAL_LIBRARY_USAGE_MAX_PER_WINDOW = 30;
+const legalLibraryUsageRequests = new Map<string, { count: number; resetAt: number }>();
+
+const getClientIp = (req: Request) => {
+  const forwardedFor = req.headers["x-forwarded-for"];
+  if (Array.isArray(forwardedFor)) {
+    return forwardedFor[0] || req.ip || "unknown";
+  }
+
+  return forwardedFor?.split(",")[0]?.trim() || req.ip || "unknown";
+};
+
+const canLogLegalLibraryUsage = (clientIp: string) => {
+  const now = Date.now();
+  const current = legalLibraryUsageRequests.get(clientIp);
+
+  if (!current || current.resetAt <= now) {
+    legalLibraryUsageRequests.set(clientIp, {
+      count: 1,
+      resetAt: now + LEGAL_LIBRARY_USAGE_WINDOW_MS,
+    });
+    return true;
+  }
+
+  if (current.count >= LEGAL_LIBRARY_USAGE_MAX_PER_WINDOW) {
+    return false;
+  }
+
+  current.count += 1;
+  return true;
+};
 
 // Initialize database
 db.exec(`
@@ -826,9 +859,23 @@ async function startServer() {
   });
 
   app.post("/api/legal-library-usage", (req, res) => {
-    const { document_id, user_email } = req.body;
+    const documentId = Number(req.body?.document_id);
+    if (!Number.isInteger(documentId) || documentId < 1) {
+      return res.status(400).json({ error: "document_id is required" });
+    }
+
+    const document = db.prepare("SELECT id FROM legal_library_2026 WHERE id = ?").get(documentId);
+    if (!document) {
+      return res.status(404).json({ error: "document not found" });
+    }
+
+    const clientIp = getClientIp(req);
+    if (!canLogLegalLibraryUsage(clientIp)) {
+      return res.status(429).json({ error: "too many usage events" });
+    }
+
     db.prepare("INSERT INTO legal_library_usage (document_id, user_email) VALUES (?, ?)")
-      .run(document_id, user_email || "Anonymous");
+      .run(documentId, "Anonymous");
     res.json({ status: "ok" });
   });
 
