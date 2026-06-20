@@ -329,8 +329,8 @@ export default function App() {
                     <h4 className="font-bold uppercase tracking-widest text-xs mb-8 text-app-accent">Contact</h4>
                     <ul className="space-y-4 text-sm text-white/60">
                       <li>3612 Webster St, Oakland, CA</li>
-                      <li>hello@rentruby.com</li>
-                      <li>(510) 555-0123</li>
+                      <li>hello@rent-ruby</li>
+                      <li>415-900-8563</li>
                     </ul>
                   </div>
                 </div>

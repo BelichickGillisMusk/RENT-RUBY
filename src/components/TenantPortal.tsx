@@ -661,14 +661,14 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
                     <Smartphone className="w-5 h-5 text-app-accent" />
                   </div>
                   <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Management</div>
-                  <div className="text-sm font-black text-white">(510) 555-0199</div>
+                  <div className="text-sm font-black text-white">415-900-8563</div>
                 </div>
                 <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center text-center hover:bg-white/10 transition-all cursor-pointer">
                   <div className="w-10 h-10 rounded-full bg-app-accent/20 flex items-center justify-center mb-3">
                     <Mail className="w-5 h-5 text-app-accent" />
                   </div>
                   <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Email Us</div>
-                  <div className="text-sm font-black text-white">hello@3875ruby.com</div>
+                  <div className="text-sm font-black text-white">hello@rent-ruby</div>
                 </div>
                 <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center text-center hover:bg-white/10 transition-all cursor-pointer">
                   <div className="w-10 h-10 rounded-full bg-app-accent/20 flex items-center justify-center mb-3">
@@ -798,7 +798,7 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
                 </div>
                 <div className="p-6 rounded-3xl bg-ruby/5 border border-ruby/10 text-right">
                   <div className="text-[10px] font-black text-ruby uppercase tracking-widest mb-1">Emergency 24/7</div>
-                  <div className="text-2xl font-black text-app-text">(510) 555-9111</div>
+                  <div className="text-2xl font-black text-app-text">415-900-8563</div>
                 </div>
               </div>
 
@@ -825,8 +825,8 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
                     <p className="text-sm text-app-text/60 leading-relaxed">
                       Prefer email? Send your concerns directly to our management team.
                     </p>
-                    <a href="mailto:mezfin@3875ruby.com" className="block w-full py-3 border border-ruby/20 text-ruby text-center rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-ruby/5 transition-all">
-                      mezfin@3875ruby.com
+                    <a href="mailto:hello@rent-ruby" className="block w-full py-3 border border-ruby/20 text-ruby text-center rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-ruby/5 transition-all">
+                      hello@rent-ruby
                     </a>
                   </div>
                 </div>
