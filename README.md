@@ -86,6 +86,8 @@ standalone fallback page:
 
 - Open `public/owner-demo.html` directly in a browser, or
 - After any static deploy, visit `/owner-demo.html`.
+- The Silverback-style neighborhood template is also available at
+  `public/walk-hike-ride-oakland.html` or `/walk-hike-ride-oakland.html`.
 
 ```bash
 npx -y firebase-tools@latest --version
