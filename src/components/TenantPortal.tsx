@@ -85,8 +85,83 @@ interface LeaseUpdate {
   signed_at?: string;
 }
 
-export const TenantPortal = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'security' | 'refer' | 'settings' | 'maintenance' | 'mailbox' | 'support' | 'info-nook'>('mailbox');
+type TenantPortalTab = 'dashboard' | 'security' | 'refer' | 'settings' | 'maintenance' | 'mailbox' | 'support' | 'info-nook';
+
+interface TenantPortalProps {
+  initialTab?: TenantPortalTab;
+  demoMode?: boolean;
+}
+
+const demoSecurityEvents: SecurityEvent[] = [
+  {
+    id: 1,
+    type: 'Recognition',
+    description: 'Authorized resident entry confirmed at Webster lobby.',
+    timestamp: '2026-06-20T08:42:00.000Z',
+  },
+  {
+    id: 2,
+    type: 'Deterrence',
+    description: 'Perimeter lights activated after-hours near package lockers.',
+    timestamp: '2026-06-20T02:14:00.000Z',
+  },
+];
+
+const demoConstructionUpdates: ConstructionUpdate[] = [
+  {
+    id: 1,
+    title: 'Smart Entry Commissioning',
+    content: 'Lobby access readers passed QA and resident mobile-entry onboarding is ready.',
+    update_date: '2026-06-19',
+  },
+  {
+    id: 2,
+    title: 'Package Hub Install',
+    content: 'Amazon Hub locker wiring is complete; final signage goes up before tenant walkthroughs.',
+    update_date: '2026-06-18',
+  },
+];
+
+const demoNotices: TenantNotice[] = [
+  {
+    id: 1,
+    title: 'Building Rules 2026',
+    content: 'Your updated building rules, trash schedule, and guest policy are available in the Info Nook.',
+    status: 'Viewed',
+    sent_at: '2026-06-17T09:00:00.000Z',
+    viewed_at: '2026-06-17T09:08:00.000Z',
+  },
+];
+
+const demoViolations: LeaseViolation[] = [
+  {
+    id: 1,
+    description: 'No active lease violations. Resident standing is clear.',
+    violation_date: '2026-06-01',
+    status: 'Clear',
+    gm_notes: 'Showcase snapshot for owner presentation.',
+  },
+];
+
+const demoMaintenanceRequests = [
+  {
+    id: 1,
+    description: 'Kitchen faucet aerator replacement',
+    status: 'Scheduled',
+    created_at: '2026-06-18T10:30:00.000Z',
+    assigned_to: 'Oakland Plumbing Pros',
+  },
+  {
+    id: 2,
+    description: 'Smart thermostat walkthrough',
+    status: 'Completed',
+    created_at: '2026-06-14T14:15:00.000Z',
+    assigned_to: 'Ruby Systems',
+  },
+];
+
+export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: TenantPortalProps) => {
+  const [activeTab, setActiveTab] = useState<TenantPortalTab>(initialTab);
   const [privacyMode, setPrivacyMode] = useState(false);
   const [settings, setSettings] = useState<UserSettings>({
     preferred_notification_time: '09:00',
@@ -130,6 +205,38 @@ export const TenantPortal = () => {
   ];
 
   useEffect(() => {
+    if (demoMode) {
+      setSettings({
+        preferred_notification_time: '09:00',
+        sms_enabled: true,
+        email_enabled: true,
+      });
+      setSecurityEvents(demoSecurityEvents);
+      setConstructionUpdates(demoConstructionUpdates);
+      setNotices(demoNotices);
+      setViolations(demoViolations);
+      setMaintenanceRequests(demoMaintenanceRequests);
+      setLeaseUpdate({
+        id: 1,
+        year: 2026,
+        status: 'Ready for Review',
+        walkthrough_completed: 1,
+      });
+      setRentStatus({
+        amount: 2450,
+        last_payment: '2026-06-01',
+        status: 'Paid',
+      });
+      setMailboxCustomizations({
+        '101': { color: '#FF5F1F' },
+        '104': { color: '#0077BE' },
+        '203': { color: '#FFD700' },
+        '302': { color: '#9B111E' },
+      });
+      setCurrentUserUnit('101');
+      return;
+    }
+
     // Auth and Firebase Sync
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -174,15 +281,23 @@ export const TenantPortal = () => {
     
     // Fetch rent status
     fetch('/api/tenant-rent/1').then(res => res.json()).then(setRentStatus);
-  }, []);
+  }, [demoMode]);
 
   const fetchLeaseUpdate = () => {
+    if (demoMode) {
+      return;
+    }
+
     fetch('/api/lease-updates/1').then(res => res.json()).then(data => setLeaseUpdate(data[0] || null));
   };
 
   const handleUpdateSettings = async (newSettings: Partial<UserSettings>) => {
     const updated = { ...settings, ...newSettings };
     setSettings(updated);
+    if (demoMode) {
+      return;
+    }
+
     await fetch('/api/user-settings/1', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -193,6 +308,14 @@ export const TenantPortal = () => {
   const handleReferFriend = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    if (demoMode) {
+      setTimeout(() => {
+        setReferralData({ name: '', email: '' });
+        setIsSubmitting(false);
+      }, 500);
+      return;
+    }
+
     try {
       await fetch('/api/referrals', {
         method: 'POST',
@@ -224,6 +347,10 @@ export const TenantPortal = () => {
 
   const handleViewNotice = async (notice: TenantNotice) => {
     setSelectedNotice(notice);
+    if (demoMode) {
+      return;
+    }
+
     if (notice.status === 'Sent') {
       await fetch(`/api/tenant-notices/${notice.id}/view`, { method: 'PATCH' });
       fetch('/api/tenant-notices/1').then(res => res.json()).then(setNotices);
@@ -232,6 +359,15 @@ export const TenantPortal = () => {
 
   const handleAcknowledgeNotice = async (noticeId: number) => {
     setIsSubmitting(true);
+    if (demoMode) {
+      setNotices((current) => current.map((notice) => (
+        notice.id === noticeId ? { ...notice, status: 'Acknowledged', acknowledged_at: new Date().toISOString() } : notice
+      )));
+      setSelectedNotice(null);
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       await fetch(`/api/tenant-notices/${noticeId}/acknowledge`, { method: 'PATCH' });
       fetch('/api/tenant-notices/1').then(res => res.json()).then(setNotices);
@@ -242,6 +378,10 @@ export const TenantPortal = () => {
   };
 
   const handleLogin = async () => {
+    if (demoMode) {
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await signInWithPopup(auth, googleProvider);
@@ -253,6 +393,10 @@ export const TenantPortal = () => {
   };
 
   const handleLogout = async () => {
+    if (demoMode) {
+      return;
+    }
+
     try {
       await signOut(auth);
     } catch (err) {
@@ -262,6 +406,14 @@ export const TenantPortal = () => {
 
   const handleUpdateMailboxColor = async (unit: string, color: string) => {
     if (unit !== currentUserUnit) return; // Secure: only tenant can update their own
+
+    if (demoMode) {
+      setMailboxCustomizations((current) => ({
+        ...current,
+        [unit]: { color },
+      }));
+      return;
+    }
 
     if (!auth.currentUser) {
       alert("Please sign in to save your customizations.");
@@ -286,6 +438,24 @@ export const TenantPortal = () => {
   const handleCreateMaintenance = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    if (demoMode) {
+      setMaintenanceRequests((current) => [
+        {
+          id: current.length + 1,
+          description: reportText || 'Showcase maintenance request',
+          status: 'Pending Review',
+          created_at: new Date().toISOString(),
+          assigned_to: 'Ruby Ops',
+        },
+        ...current,
+      ]);
+      setReportText('');
+      setShowReportSuccess(true);
+      setIsSubmitting(false);
+      setTimeout(() => setShowReportSuccess(false), 3000);
+      return;
+    }
+
     try {
       await fetch('/api/maintenance', {
         method: 'POST',
@@ -308,6 +478,14 @@ export const TenantPortal = () => {
   const handleSubmitConcern = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    if (demoMode) {
+      setShowConcernSuccess(true);
+      setConcernMessage('');
+      setIsSubmitting(false);
+      setTimeout(() => setShowConcernSuccess(false), 3000);
+      return;
+    }
+
     try {
       await fetch('/api/concerns', {
         method: 'POST',

@@ -30,7 +30,8 @@ import {
   Activity,
   FileText,
   Mail,
-  Wrench
+  Wrench,
+  LayoutGrid
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -65,11 +66,15 @@ import { ProductTour } from './components/ProductTour';
 import { MaintenanceFlow } from './components/MaintenanceFlow';
 import { OwnerPresentation } from './components/OwnerPresentation';
 import { NeighborhoodRadiusMap } from './components/NeighborhoodRadiusMap';
+import { OwnerShowcaseSnapshot } from './components/OwnerShowcaseSnapshot';
 
 // Revamped Components
 import { HeroSection } from './components/HeroSection';
 import { NeighborhoodMosaic } from './components/NeighborhoodMosaic';
 import { AIDoorman } from './components/AIDoorman';
+
+type AppView = 'hub' | 'admin' | 'tenant';
+type AdminTab = 'portfolio' | 'rent-roll' | 'maintenance' | 'marketing' | 'community' | 'ceo' | 'sfplus' | 'marketmax' | 'vendors' | 'concerns';
 
 const revenueData = [
   { month: 'Jan', revenue: 45000, occupancy: 92 },
@@ -86,13 +91,38 @@ const distributionData = [
   { name: 'Short-term', value: 10, color: '#D18E8E' },
 ];
 
+const getInitialView = (): AppView => {
+  const params = new URLSearchParams(window.location.search);
+  const requestedView = params.get('view');
+
+  if (requestedView === 'admin' || requestedView === 'tenant' || requestedView === 'hub') {
+    return requestedView;
+  }
+
+  return 'hub';
+};
+
 export default function App() {
   const { theme } = useTheme();
-  const [view, setView] = useState<'hub' | 'admin' | 'tenant'>('hub');
-  const [adminTab, setAdminTab] = useState<'portfolio' | 'rent-roll' | 'maintenance' | 'marketing' | 'community' | 'ceo' | 'sfplus' | 'marketmax' | 'vendors' | 'concerns'>('portfolio');
+  const isStaticShowcase = (import.meta as any).env?.VITE_STATIC_SHOWCASE === 'true';
+  const [view, setView] = useState<AppView>(getInitialView);
+  const [adminTab, setAdminTab] = useState<AdminTab>('portfolio');
   const [rentRollUnlocked, setRentRollUnlocked] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showOwnerVision, setShowOwnerVision] = useState(false);
+
+  const adminTabs = isStaticShowcase
+    ? [
+        { id: 'portfolio', label: 'Portfolio', icon: LayoutGrid },
+        { id: 'rent-roll', label: 'Rent Roll', icon: FileText },
+      ]
+    : [
+        { id: 'portfolio', label: 'Portfolio', icon: LayoutGrid },
+        { id: 'rent-roll', label: 'Rent Roll', icon: FileText },
+        { id: 'maintenance', label: 'Ops', icon: Wrench },
+        { id: 'ceo', label: 'CEO Brief', icon: Activity },
+        { id: 'vendors', label: 'Vendors', icon: ShieldCheck }
+      ];
 
   return (
     <div className={`min-h-screen font-sans selection:bg-app-accent/30 transition-colors duration-700`}>
@@ -219,6 +249,9 @@ export default function App() {
             <HeroSection />
             <NeighborhoodMosaic />
             <AIDoorman />
+            <ProductTour />
+            <BuildingIntelligence />
+            <OwnerShowcaseSnapshot />
             
             {/* Feature Highlights Section */}
             <section className="py-24 bg-app-bg border-t border-app-border">
@@ -325,20 +358,16 @@ export default function App() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="px-2 py-0.5 bg-app-accent/10 border border-app-accent/20 text-app-accent text-[8px] font-bold uppercase tracking-widest rounded">System Live</div>
+                  <div className="px-2 py-0.5 bg-app-accent/10 border border-app-accent/20 text-app-accent text-[8px] font-bold uppercase tracking-widest rounded">
+                    {isStaticShowcase ? 'Showcase Live' : 'System Live'}
+                  </div>
                   <div className="text-[10px] text-app-text/40 font-bold uppercase tracking-widest">Last sync: Just now</div>
                 </div>
                 <h1 className="text-5xl font-black text-app-text uppercase tracking-tighter">Owner <span className="text-app-accent italic">Intelligence</span>.</h1>
               </div>
               
               <div className="flex p-1 bg-app-text/5 border border-app-border rounded-xl">
-                {[
-                  { id: 'portfolio', label: 'Portfolio', icon: LayoutGrid },
-                  { id: 'rent-roll', label: 'Rent Roll', icon: FileText },
-                  { id: 'maintenance', label: 'Ops', icon: Wrench },
-                  { id: 'ceo', label: 'CEO Brief', icon: Activity },
-                  { id: 'vendors', label: 'Vendors', icon: ShieldCheck }
-                ].map((tab) => (
+                {adminTabs.map((tab) => (
                   <button 
                     key={tab.id}
                     onClick={() => setAdminTab(tab.id as any)}
@@ -451,7 +480,7 @@ export default function App() {
                   </div>
                 </div>
               )}
-              {adminTab === 'rent-roll' && <RentRollDashboard />}
+              {adminTab === 'rent-roll' && (isStaticShowcase ? <OwnerShowcaseSnapshot /> : <RentRollDashboard />)}
               {adminTab === 'maintenance' && <MaintenanceModule />}
               {adminTab === 'ceo' && <CEOBriefingPortal />}
               {adminTab === 'vendors' && <VendorManagement />}
@@ -476,7 +505,7 @@ export default function App() {
                 </div>
               </div>
             </div>
-            <TenantPortal />
+            <TenantPortal demoMode={isStaticShowcase} initialTab={isStaticShowcase ? 'info-nook' : 'mailbox'} />
           </motion.div>
         )}
       </AnimatePresence>

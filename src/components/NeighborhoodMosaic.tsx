@@ -5,28 +5,28 @@ import { MapPin, Train, Hospital, TreePine, Coffee } from 'lucide-react';
 const landmarks = [
   {
     name: 'Mosswood Park',
-    image: '/assets/neighborhood/mosswood-park.jpg',
+    image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1200&auto=format&fit=crop',
     category: 'Park',
     icon: TreePine,
     size: 'col-span-2 row-span-2'
   },
   {
     name: 'Kaiser Permanente',
-    image: '/assets/neighborhood/kaiser-permanente.jpg',
+    image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1200&auto=format&fit=crop',
     category: 'Medical',
     icon: Hospital,
     size: 'col-span-1 row-span-1'
   },
   {
     name: 'MacArthur BART',
-    image: '/assets/neighborhood/macarthur-bart.jpg',
+    image: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?q=80&w=1200&auto=format&fit=crop',
     category: 'Transit',
     icon: Train,
     size: 'col-span-1 row-span-2'
   },
   {
     name: 'Piedmont Avenue',
-    image: '/assets/neighborhood/piedmont-ave.png',
+    image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200&auto=format&fit=crop',
     category: 'Dining',
     icon: Coffee,
     size: 'col-span-1 row-span-1'

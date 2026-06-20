@@ -1,6 +1,7 @@
-import express from "express";
+import express, { type Request } from "express";
 import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
@@ -8,7 +9,46 @@ import cookieParser from "cookie-parser";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const db = new Database("rentroll_v3.db");
+const databasePath = process.env.DATABASE_PATH || "rentroll_v3.db";
+const databaseDir = path.dirname(databasePath);
+if (databaseDir !== "." && !fs.existsSync(databaseDir)) {
+  fs.mkdirSync(databaseDir, { recursive: true });
+}
+
+const db = new Database(databasePath);
+
+const LEGAL_LIBRARY_USAGE_WINDOW_MS = 60 * 1000;
+const LEGAL_LIBRARY_USAGE_MAX_PER_WINDOW = 30;
+const legalLibraryUsageRequests = new Map<string, { count: number; resetAt: number }>();
+
+const getClientIp = (req: Request) => {
+  const forwardedFor = req.headers["x-forwarded-for"];
+  if (Array.isArray(forwardedFor)) {
+    return forwardedFor[0] || req.ip || "unknown";
+  }
+
+  return forwardedFor?.split(",")[0]?.trim() || req.ip || "unknown";
+};
+
+const canLogLegalLibraryUsage = (clientIp: string) => {
+  const now = Date.now();
+  const current = legalLibraryUsageRequests.get(clientIp);
+
+  if (!current || current.resetAt <= now) {
+    legalLibraryUsageRequests.set(clientIp, {
+      count: 1,
+      resetAt: now + LEGAL_LIBRARY_USAGE_WINDOW_MS,
+    });
+    return true;
+  }
+
+  if (current.count >= LEGAL_LIBRARY_USAGE_MAX_PER_WINDOW) {
+    return false;
+  }
+
+  current.count += 1;
+  return true;
+};
 
 // Initialize database
 db.exec(`
@@ -256,6 +296,25 @@ db.exec(`
     notes TEXT,
     FOREIGN KEY (property_id) REFERENCES properties(id)
   );
+
+  CREATE TABLE IF NOT EXISTS legal_library_2026 (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    category TEXT NOT NULL,
+    pdf_url TEXT,
+    external_link TEXT,
+    is_mandatory INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS legal_library_usage (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    document_id INTEGER NOT NULL,
+    user_email TEXT NOT NULL,
+    accessed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (document_id) REFERENCES legal_library_2026(id)
+  );
 `);
 
 // Migration: Add neighborhood column if it doesn't exist
@@ -454,12 +513,65 @@ if (propertyCount.count === 0) {
   insertVendor.run("Ruby Security Systems", "Security", "David Kim", "david@rubysecurity.com", "(510) 555-7890", "2026-09-30");
 }
 
+const legalLibraryCount = db.prepare("SELECT COUNT(*) as count FROM legal_library_2026").get() as { count: number };
+if (legalLibraryCount.count === 0) {
+  const insertLibraryDoc = db.prepare(`
+    INSERT INTO legal_library_2026 (title, description, category, pdf_url, external_link, is_mandatory)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `);
+
+  insertLibraryDoc.run(
+    "Move-Out Checklist",
+    "Required tenant checklist for keys, cleaning, inspections, forwarding address, and final balance closeout.",
+    "Tenant Forms",
+    null,
+    null,
+    1
+  );
+  insertLibraryDoc.run(
+    "Building Rules 2026",
+    "Updated house rules covering quiet hours, smart-bin recycling, guest policies, security systems, and sublet restrictions.",
+    "Building Policies",
+    null,
+    null,
+    1
+  );
+  insertLibraryDoc.run(
+    "Oakland Rent Adjustment Program Guide",
+    "Reference guide for covered units, allowable rent increases, petitions, and RAP notice requirements.",
+    "Compliance",
+    null,
+    "https://www.oaklandca.gov/topics/rent-adjustment-program",
+    0
+  );
+  insertLibraryDoc.run(
+    "Parking & Transit Maps",
+    "Neighborhood parking rules, street-sweeping zones, bike routes, and nearby BART/AC Transit connections.",
+    "Resident Resources",
+    null,
+    null,
+    0
+  );
+  insertLibraryDoc.run(
+    "Trash & Recycling Schedule",
+    "AI-monitored smart-bin schedule for landfill, compost, recycling, bulky pickup, and contamination reminders.",
+    "Building Policies",
+    null,
+    null,
+    1
+  );
+}
+
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   app.use(express.json());
   app.use(cookieParser());
+
+  app.get("/healthz", (req, res) => {
+    res.json({ status: "ok", uptime: process.uptime() });
+  });
 
   // Cookie Check Endpoint
   app.get("/api/cookie-set", (req, res) => {
@@ -739,6 +851,32 @@ async function startServer() {
   app.get("/api/legal-forms", (req, res) => {
     const forms = db.prepare("SELECT * FROM legal_forms ORDER BY category, title").all();
     res.json(forms);
+  });
+
+  app.get("/api/legal-library-2026", (req, res) => {
+    const documents = db.prepare("SELECT * FROM legal_library_2026 ORDER BY is_mandatory DESC, category, title").all();
+    res.json(documents);
+  });
+
+  app.post("/api/legal-library-usage", (req, res) => {
+    const documentId = Number(req.body?.document_id);
+    if (!Number.isInteger(documentId) || documentId < 1) {
+      return res.status(400).json({ error: "document_id is required" });
+    }
+
+    const document = db.prepare("SELECT id FROM legal_library_2026 WHERE id = ?").get(documentId);
+    if (!document) {
+      return res.status(404).json({ error: "document not found" });
+    }
+
+    const clientIp = getClientIp(req);
+    if (!canLogLegalLibraryUsage(clientIp)) {
+      return res.status(429).json({ error: "too many usage events" });
+    }
+
+    db.prepare("INSERT INTO legal_library_usage (document_id, user_email) VALUES (?, ?)")
+      .run(documentId, "Anonymous");
+    res.json({ status: "ok" });
   });
 
   // Tenant Notices
