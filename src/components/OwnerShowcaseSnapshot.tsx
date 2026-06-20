@@ -1,0 +1,219 @@
+import React from 'react';
+import { motion } from 'motion/react';
+import {
+  Activity,
+  Bell,
+  CheckCircle2,
+  FileText,
+  Filter,
+  Search,
+  ShieldCheck,
+  TrendingUp,
+  Users,
+  Zap,
+} from 'lucide-react';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+
+const rentRollSnapshot = [
+  { unit: '101', resident: 'Tenant A.', rent: '$2,450', status: 'Paid', lease: 'Renewal Ready', risk: 'Low' },
+  { unit: '104', resident: 'Tenant M.', rent: '$2,725', status: 'Paid', lease: '12 mo left', risk: 'Low' },
+  { unit: '203', resident: 'Tenant K.', rent: '$2,300', status: 'Watch', lease: '90 days', risk: 'Medium' },
+  { unit: '302', resident: 'Vacant', rent: '$2,950', status: 'Listed', lease: 'Open', risk: 'Market' },
+];
+
+const filterStack = [
+  'Lease expiration',
+  'Late payment risk',
+  'Maintenance score',
+  'Market rent delta',
+  'Unit readiness',
+  'Owner priority',
+];
+
+const performanceData = [
+  { label: 'Jan', value: 91 },
+  { label: 'Feb', value: 94 },
+  { label: 'Mar', value: 93 },
+  { label: 'Apr', value: 97 },
+  { label: 'May', value: 96 },
+  { label: 'Jun', value: 98 },
+];
+
+const techStack = [
+  { label: 'AI rent roll summaries', icon: Activity },
+  { label: 'Tenant portal documents', icon: FileText },
+  { label: 'Smart building signals', icon: Zap },
+  { label: 'Legal/compliance log', icon: ShieldCheck },
+  { label: 'Owner-ready alerts', icon: Bell },
+  { label: 'Resident engagement', icon: Users },
+];
+
+export const OwnerShowcaseSnapshot = () => {
+  return (
+    <section id="rent-roll" className="py-28 bg-app-bg border-t border-app-border overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-14">
+          <div className="max-w-3xl">
+            <div className="text-[10px] font-black text-app-accent uppercase tracking-[0.35em] mb-4">
+              Owner Meeting Snapshot
+            </div>
+            <h2 className="text-5xl md:text-7xl font-black text-app-text uppercase tracking-tighter leading-[0.9]">
+              Rent roll that reads like a <span className="text-app-accent italic">command center</span>.
+            </h2>
+          </div>
+          <p className="text-app-text/55 text-lg font-medium max-w-md">
+            A high-level view of the technology stack: filters, alerts, lease status,
+            resident activity, and market upside in one clean owner dashboard.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="xl:col-span-8 bg-white rounded-[2.5rem] border border-app-border shadow-2xl overflow-hidden"
+          >
+            <div className="p-6 md:p-8 border-b border-app-border flex flex-col md:flex-row gap-4 md:items-center justify-between">
+              <div>
+                <div className="text-[10px] font-black text-app-text/35 uppercase tracking-[0.25em] mb-2">
+                  3875 Ruby Street / Live Portfolio View
+                </div>
+                <h3 className="text-2xl font-black text-app-text">Intelligent Rent Roll</h3>
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                <div className="px-3 py-2 rounded-full bg-app-text/5 text-[10px] font-black uppercase tracking-widest text-app-text/60 flex items-center gap-2">
+                  <Search className="w-3 h-3" /> Search
+                </div>
+                <div className="px-3 py-2 rounded-full bg-app-accent text-white text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                  <Filter className="w-3 h-3" /> 12 Filters
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 md:p-8">
+              {[
+                ['Monthly Rent', '$72,450', '+12.5%'],
+                ['Occupancy', '98.2%', 'Only 2 open'],
+                ['Upside Found', '+$4,200', 'Market Max'],
+              ].map(([label, value, detail]) => (
+                <div key={label} className="p-5 rounded-[1.5rem] bg-app-text/[0.03] border border-app-border">
+                  <div className="text-[9px] font-black text-app-text/35 uppercase tracking-[0.25em] mb-2">{label}</div>
+                  <div className="text-3xl font-black text-app-text">{value}</div>
+                  <div className="mt-2 text-xs font-bold text-green-600 flex items-center gap-1">
+                    <TrendingUp className="w-3 h-3" /> {detail}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="px-6 md:px-8 pb-8 overflow-x-auto">
+              <table className="w-full min-w-[680px] text-left">
+                <thead>
+                  <tr className="text-[9px] font-black uppercase tracking-[0.25em] text-app-text/35">
+                    <th className="py-4">Unit</th>
+                    <th>Resident</th>
+                    <th>Rent</th>
+                    <th>Status</th>
+                    <th>Lease</th>
+                    <th>Risk</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-app-border">
+                  {rentRollSnapshot.map((row) => (
+                    <tr key={row.unit} className="text-sm font-bold text-app-text">
+                      <td className="py-4">
+                        <span className="px-3 py-1 rounded-sm bg-app-text text-white text-xs font-black">{row.unit}</span>
+                      </td>
+                      <td>{row.resident}</td>
+                      <td>{row.rent}</td>
+                      <td>
+                        <span className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-widest ${
+                          row.status === 'Paid' ? 'bg-green-500/10 text-green-700' :
+                          row.status === 'Watch' ? 'bg-amber-500/10 text-amber-700' :
+                          'bg-app-accent/10 text-app-accent'
+                        }`}>
+                          {row.status}
+                        </span>
+                      </td>
+                      <td className="text-app-text/55">{row.lease}</td>
+                      <td>{row.risk}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+
+          <div className="xl:col-span-4 space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-app-text text-white rounded-[2.5rem] p-8 shadow-2xl"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-xl font-black">Filter Stack</h3>
+                <CheckCircle2 className="w-5 h-5 text-app-accent" />
+              </div>
+              <div className="grid grid-cols-1 gap-3">
+                {filterStack.map((filter) => (
+                  <div key={filter} className="px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-white/70">
+                    {filter}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-white rounded-[2.5rem] p-8 border border-app-border shadow-sm"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-black text-app-text">Occupancy Signal</h3>
+                <span className="text-[9px] font-black uppercase tracking-widest text-green-600">Optimal</span>
+              </div>
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={performanceData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.06)" />
+                    <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 800 }} />
+                    <YAxis hide domain={[80, 100]} />
+                    <Tooltip />
+                    <Bar dataKey="value" radius={[10, 10, 0, 0]}>
+                      {performanceData.map((_, index) => (
+                        <Cell key={index} fill={index === performanceData.length - 1 ? '#FF5F1F' : '#0B1A2D'} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-6">
+          {techStack.map((item) => (
+            <div key={item.label} className="bg-white/70 backdrop-blur-sm border border-app-border rounded-[1.5rem] p-5">
+              <item.icon className="w-5 h-5 text-app-accent mb-4" />
+              <div className="text-[10px] font-black uppercase tracking-widest text-app-text/60 leading-relaxed">
+                {item.label}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};

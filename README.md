@@ -74,3 +74,28 @@ Then add the DNS records returned by Google Cloud for the domain.
   launches. Production data should use a mounted volume or managed database.
 - View the original AI Studio applet at
   https://ai.studio/apps/85f4144f-dabc-4ffc-b990-b6a65dc46dad.
+
+## Emergency owner showcase on Firebase Hosting
+
+For a meeting-safe visual demo, the app can be deployed as a static Firebase
+Hosting showcase. This mode avoids API-heavy tabs and shows a polished homepage,
+Tenant Portal snapshot, and high-level Rent Roll/Owner Intelligence snapshot.
+
+```bash
+npx -y firebase-tools@latest --version
+npx -y firebase-tools@latest login
+npx -y firebase-tools@latest use gen-lang-client-0013150741
+npx -y firebase-tools@latest deploy --only hosting
+```
+
+The Firebase deploy runs `npm run build:showcase` automatically and serves the
+Vite `dist/` output from:
+
+- `https://gen-lang-client-0013150741.web.app`
+- `https://gen-lang-client-0013150741.firebaseapp.com`
+
+For a temporary preview URL instead of replacing the live Hosting release:
+
+```bash
+npx -y firebase-tools@latest hosting:channel:deploy owner-showcase --expires 7d
+```
