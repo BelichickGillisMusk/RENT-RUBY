@@ -186,8 +186,8 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
 
   const [rentStatus, setRentStatus] = useState<{ amount: number, last_payment: string, status: string } | null>(null);
   const [mailboxCustomizations, setMailboxCustomizations] = useState<Record<string, { color: string }>>({});
-  const [selectedMailbox, setSelectedMailbox] = useState<string | null>(null);
-  const [currentUserUnit, setCurrentUserUnit] = useState<string>('101'); // Mocked for demo
+  const [selectedMailbox, setSelectedMailbox] = useState<string | null>(demoMode ? '105' : null);
+  const [currentUserUnit, setCurrentUserUnit] = useState<string>('105'); // Mocked for demo
 
   const units = [
     '101', '102', '103', '104', '105', '106',
@@ -230,10 +230,11 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
       setMailboxCustomizations({
         '101': { color: '#FF5F1F' },
         '104': { color: '#0077BE' },
+        '105': { color: '#E24F9A' },
         '203': { color: '#FFD700' },
         '302': { color: '#9B111E' },
       });
-      setCurrentUserUnit('101');
+      setCurrentUserUnit('105');
       return;
     }
 
@@ -707,9 +708,11 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {[
-                        { id: 'dashboard', label: 'Balance', icon: CreditCard, color: 'bg-ruby/10 text-ruby' },
-                        { id: 'maintenance', label: 'Maintenance', icon: Wrench, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
-                        { id: 'dashboard', label: 'Notices', icon: Bell, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
+                        { id: 'dashboard', label: 'Rent', icon: CreditCard, color: 'bg-ruby/10 text-ruby' },
+                        { id: 'maintenance', label: 'Maint.', icon: Wrench, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
+                        { id: 'dashboard', label: 'Notice to Enter', icon: Bell, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
+                        { id: 'dashboard', label: 'Lease Updates', icon: FileWarning, color: 'bg-[#72CDF7]/10 text-[#72CDF7]' },
+                        { id: 'dashboard', label: 'Construction', icon: Camera, color: 'bg-[#E24F9A]/10 text-[#E24F9A]' },
                       ].map((link) => (
                         <button
                           key={link.label}

@@ -505,7 +505,7 @@ export default function App() {
                 </div>
               </div>
             </div>
-            <TenantPortal demoMode={isStaticShowcase} initialTab={isStaticShowcase ? 'info-nook' : 'mailbox'} />
+            <TenantPortal demoMode={isStaticShowcase} initialTab="mailbox" />
           </motion.div>
         )}
       </AnimatePresence>
