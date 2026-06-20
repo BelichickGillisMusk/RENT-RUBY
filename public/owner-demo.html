@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rent-Ruby Owner Showcase</title>
+    <meta
+      name="description"
+      content="A meeting-ready Rent-Ruby owner showcase with homepage, tenant portal, and rent roll snapshots."
+    />
+    <style>
+      :root {
+        --accent: #ff5f1f;
+        --ink: #0b1a2d;
+        --muted: #607089;
+        --paper: #f7f4ef;
+        --card: #ffffff;
+        --line: rgba(11, 26, 45, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 20% 0%, rgba(255, 95, 31, 0.16), transparent 34rem),
+          radial-gradient(circle at 100% 10%, rgba(11, 26, 45, 0.12), transparent 30rem),
+          var(--paper);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(20px);
+        background: rgba(247, 244, 239, 0.82);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .nav-inner {
+        min-height: 76px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .brand {
+        font-size: 24px;
+        font-weight: 950;
+        letter-spacing: -0.08em;
+      }
+
+      .brand span {
+        color: var(--accent);
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        color: rgba(11, 26, 45, 0.56);
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 95, 31, 0.2);
+        background: rgba(255, 95, 31, 0.1);
+        color: var(--accent);
+        padding: 8px 13px;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 99px;
+        background: var(--accent);
+        box-shadow: 0 0 0 8px rgba(255, 95, 31, 0.14);
+      }
+
+      .hero {
+        padding: 70px 0 54px;
+        display: grid;
+        grid-template-columns: 1.04fr 0.96fr;
+        gap: 48px;
+        align-items: center;
+      }
+
+      h1 {
+        margin: 22px 0 18px;
+        font-size: clamp(58px, 10vw, 132px);
+        line-height: 0.82;
+        letter-spacing: -0.08em;
+        text-transform: uppercase;
+      }
+
+      h1 span,
+      .accent {
+        color: var(--accent);
+      }
+
+      .serif {
+        font-family: Georgia, "Times New Roman", serif;
+        font-style: italic;
+        letter-spacing: -0.03em;
+      }
+
+      .lead {
+        color: rgba(11, 26, 45, 0.66);
+        font-size: clamp(18px, 2.2vw, 24px);
+        line-height: 1.45;
+        max-width: 650px;
+        font-weight: 600;
+      }
+
+      .actions {
+        margin-top: 30px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+
+      .button {
+        border: 0;
+        border-radius: 999px;
+        padding: 16px 22px;
+        font-size: 12px;
+        font-weight: 950;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+
+      .button.primary {
+        background: var(--accent);
+        color: #fff;
+        box-shadow: 0 20px 50px rgba(255, 95, 31, 0.28);
+      }
+
+      .button.secondary {
+        background: #fff;
+        color: var(--ink);
+        border: 1px solid var(--line);
+      }
+
+      .hero-card {
+        min-height: 610px;
+        border-radius: 48px;
+        overflow: hidden;
+        position: relative;
+        background:
+          linear-gradient(to top, rgba(11, 26, 45, 0.82), rgba(11, 26, 45, 0.05)),
+          url("https://images.unsplash.com/photo-1560662105-57f8ad6ae2d1?q=80&w=1400&auto=format&fit=crop")
+            center/cover;
+        border: 8px solid #fff;
+        box-shadow: 0 30px 80px rgba(11, 26, 45, 0.24);
+      }
+
+      .hero-card-copy {
+        position: absolute;
+        left: 42px;
+        right: 42px;
+        bottom: 42px;
+        color: #fff;
+      }
+
+      .hero-card-copy .eyebrow {
+        color: var(--accent);
+      }
+
+      .eyebrow {
+        font-size: 10px;
+        font-weight: 950;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+      }
+
+      .stats {
+        margin-top: 34px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        border-top: 1px solid var(--line);
+      }
+
+      .stat {
+        padding: 24px 24px 0 0;
+      }
+
+      .stat strong {
+        display: block;
+        font-size: 34px;
+        letter-spacing: -0.05em;
+      }
+
+      .stat span {
+        color: rgba(11, 26, 45, 0.46);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      section {
+        padding: 58px 0;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 28px;
+        margin-bottom: 30px;
+      }
+
+      h2 {
+        margin: 0;
+        max-width: 780px;
+        font-size: clamp(38px, 5.6vw, 74px);
+        line-height: 0.9;
+        letter-spacing: -0.07em;
+        text-transform: uppercase;
+      }
+
+      .section-head p {
+        max-width: 430px;
+        color: rgba(11, 26, 45, 0.58);
+        line-height: 1.55;
+        font-weight: 650;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.84);
+        border: 1px solid var(--line);
+        border-radius: 34px;
+        padding: 28px;
+        box-shadow: 0 20px 60px rgba(11, 26, 45, 0.06);
+      }
+
+      .card.dark {
+        background: var(--ink);
+        color: #fff;
+      }
+
+      .card h3 {
+        margin: 14px 0 8px;
+        font-size: 24px;
+        letter-spacing: -0.04em;
+      }
+
+      .card p {
+        margin: 0;
+        color: rgba(11, 26, 45, 0.58);
+        line-height: 1.55;
+        font-weight: 600;
+      }
+
+      .card.dark p {
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 16px;
+        background: rgba(255, 95, 31, 0.13);
+        color: var(--accent);
+        display: grid;
+        place-items: center;
+        font-weight: 950;
+      }
+
+      .portal-wrap {
+        display: grid;
+        grid-template-columns: 0.86fr 1.14fr;
+        gap: 20px;
+        align-items: stretch;
+      }
+
+      .phone {
+        background: #2a1810;
+        color: #fff;
+        border-radius: 48px;
+        padding: 28px;
+        min-height: 610px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 30px 80px rgba(42, 24, 16, 0.24);
+      }
+
+      .field {
+        position: absolute;
+        inset: 86px 24px 24px;
+        border: 2px solid rgba(255, 255, 255, 0.16);
+        border-radius: 120px 120px 38px 38px;
+        background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.08), transparent 22rem);
+      }
+
+      .mail-grid {
+        position: relative;
+        z-index: 2;
+        margin-top: 30px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .mailbox {
+        border-radius: 16px;
+        min-height: 68px;
+        display: grid;
+        place-items: center;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        font-weight: 950;
+      }
+
+      .mailbox.active {
+        background: var(--accent);
+        color: #fff;
+        box-shadow: 0 0 0 5px rgba(255, 95, 31, 0.22);
+      }
+
+      .info-list {
+        display: grid;
+        gap: 14px;
+      }
+
+      .info-row {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        padding: 18px;
+        border-radius: 24px;
+        background: rgba(11, 26, 45, 0.04);
+        border: 1px solid var(--line);
+      }
+
+      .rent-roll {
+        overflow: hidden;
+        padding: 0;
+      }
+
+      .table-head {
+        padding: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--line);
+        gap: 16px;
+      }
+
+      .filters {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .filter {
+        border-radius: 999px;
+        background: rgba(11, 26, 45, 0.06);
+        padding: 10px 12px;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 720px;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      th {
+        color: rgba(11, 26, 45, 0.42);
+        font-size: 10px;
+        font-weight: 950;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      td {
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 7px 10px;
+        font-size: 10px;
+        font-weight: 950;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        background: rgba(255, 95, 31, 0.12);
+        color: var(--accent);
+      }
+
+      .ok {
+        background: rgba(26, 163, 92, 0.12);
+        color: #177245;
+      }
+
+      .warn {
+        background: rgba(214, 137, 16, 0.13);
+        color: #9a5b00;
+      }
+
+      .chart {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        align-items: end;
+        gap: 10px;
+        height: 210px;
+        padding-top: 20px;
+      }
+
+      .bar {
+        border-radius: 12px 12px 0 0;
+        background: linear-gradient(to top, var(--ink), var(--accent));
+        min-height: 30px;
+      }
+
+      .footer {
+        padding: 54px 0 70px;
+        background: var(--ink);
+        color: #fff;
+        margin-top: 58px;
+      }
+
+      .footer p {
+        color: rgba(255, 255, 255, 0.55);
+      }
+
+      @media (max-width: 920px) {
+        .nav-links {
+          display: none;
+        }
+
+        .hero,
+        .portal-wrap {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-card,
+        .phone {
+          min-height: 460px;
+        }
+
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+
+        .section-head {
+          display: block;
+        }
+
+        .table-scroll {
+          overflow-x: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="shell nav-inner">
+        <div class="brand">RENT-<span>RUBY</span></div>
+        <div class="nav-links">
+          <a href="#home">Home</a>
+          <a href="#tenant">Tenant Portal</a>
+          <a href="#owner">Rent Roll</a>
+          <a href="#tech">Technology</a>
+        </div>
+        <div class="pill"><span class="dot"></span> Owner Demo Ready</div>
+      </div>
+    </nav>
+
+    <main id="home" class="shell">
+      <section class="hero">
+        <div>
+          <div class="pill">POSITIVE VIBES LIVE HERE STORY</div>
+          <h1>Live <span>Ruby.</span></h1>
+          <p class="lead">
+            A polished preview of the Rent-Ruby platform for the owner meeting:
+            public homepage, tenant experience, smart building features, and a
+            high-level rent roll command center.
+          </p>
+          <div class="actions">
+            <a class="button primary" href="#owner">Show Owner Snapshot</a>
+            <a class="button secondary" href="#tenant">View Tenant Portal</a>
+          </div>
+          <div class="stats">
+            <div class="stat"><strong>98.2%</strong><span>Occupancy</span></div>
+            <div class="stat"><strong>2</strong><span>Units Left</span></div>
+            <div class="stat"><strong>0.8s</strong><span>AI Response</span></div>
+          </div>
+        </div>
+        <div class="hero-card" aria-label="Historic Oakland building">
+          <div class="hero-card-copy">
+            <div class="eyebrow">The Ruby Building</div>
+            <h3 class="serif" style="font-size: 40px; margin: 10px 0 0">
+              Historic charm. Modern operations.
+            </h3>
+          </div>
+        </div>
+      </section>
+
+      <section id="tech">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow accent">Platform Overview</div>
+            <h2>The Ruby ecosystem.</h2>
+          </div>
+          <p>
+            The owner sees the story fast: resident delight on the front end,
+            operational control on the back end, and visible technology that
+            makes the asset feel modern.
+          </p>
+        </div>
+        <div class="grid-3">
+          <article class="card">
+            <div class="icon">AI</div>
+            <h3>AI Doorman</h3>
+            <p>
+              A resident-facing assistant for building questions, local context,
+              forms, and support handoffs.
+            </p>
+          </article>
+          <article class="card">
+            <div class="icon">BI</div>
+            <h3>Building Intelligence</h3>
+            <p>
+              Smart-entry, package, trash, maintenance, and security signals
+              framed as a modern building upgrade.
+            </p>
+          </article>
+          <article class="card dark">
+            <div class="icon">RR</div>
+            <h3>Rent Roll Command</h3>
+            <p>
+              Filters, risk signals, market delta, lease status, and rent
+              performance in one clean owner view.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="tenant">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow accent">Tenant Snapshot</div>
+            <h2>Resident portal that feels premium.</h2>
+          </div>
+          <p>
+            A quick owner-friendly snapshot: Info Nook documents, mailbox
+            identity, payments, maintenance, notices, and support without
+            exposing unfinished backend details.
+          </p>
+        </div>
+        <div class="portal-wrap">
+          <div class="phone">
+            <div class="eyebrow" style="color: rgba(255,255,255,.58)">Mailbox Hub</div>
+            <h3 style="font-size: 38px; margin: 10px 0 0">Ruby Stadium</h3>
+            <div class="field"></div>
+            <div class="mail-grid">
+              <div class="mailbox active">101</div>
+              <div class="mailbox">102</div>
+              <div class="mailbox">103</div>
+              <div class="mailbox">104</div>
+              <div class="mailbox">201</div>
+              <div class="mailbox">202</div>
+              <div class="mailbox">203</div>
+              <div class="mailbox">301</div>
+              <div class="mailbox">302</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="eyebrow accent">Info Nook</div>
+            <h3 style="font-size: 38px; margin-top: 10px">
+              Everything residents need, organized.
+            </h3>
+            <div class="info-list">
+              <div class="info-row">
+                <div class="icon">01</div>
+                <div>
+                  <strong>Move-Out Checklist</strong>
+                  <p>Keys, cleaning, inspections, forwarding address, and closeout steps.</p>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="icon">02</div>
+                <div>
+                  <strong>Building Rules 2026</strong>
+                  <p>Quiet hours, guest policy, smart bins, and sublet guidance.</p>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="icon">03</div>
+                <div>
+                  <strong>Parking, Transit, Trash</strong>
+                  <p>Maps, schedules, smart-bin alerts, and neighborhood details.</p>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="icon">04</div>
+                <div>
+                  <strong>Quick Forms</strong>
+                  <p>Pet registration, sublet requests, support, and maintenance intake.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="owner">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow accent">Owner Intelligence</div>
+            <h2>High-level rent roll snapshot.</h2>
+          </div>
+          <p>
+            This is the meeting view: clear numbers, obvious filters, risk
+            cues, and enough detail to show the platform is real without forcing
+            the owner into the weeds.
+          </p>
+        </div>
+        <div class="grid-3">
+          <article class="card">
+            <div class="eyebrow">Monthly Revenue</div>
+            <h3 style="font-size: 42px">$72,450</h3>
+            <p><span class="badge ok">+12.5%</span> Revenue trend improving</p>
+          </article>
+          <article class="card">
+            <div class="eyebrow">Occupancy</div>
+            <h3 style="font-size: 42px">98.2%</h3>
+            <p><span class="badge">Only 2 units left</span> Launch-ready positioning</p>
+          </article>
+          <article class="card">
+            <div class="eyebrow">Market Max Delta</div>
+            <h3 style="font-size: 42px">+$4,200</h3>
+            <p><span class="badge ok">Upside found</span> AI rent optimization signal</p>
+          </article>
+        </div>
+        <div class="card rent-roll" style="margin-top: 20px">
+          <div class="table-head">
+            <div>
+              <div class="eyebrow accent">3875 Ruby Street</div>
+              <h3 style="margin: 8px 0 0">Intelligent Rent Roll</h3>
+            </div>
+            <div class="filters">
+              <span class="filter">Lease Expiration</span>
+              <span class="filter">Payment Risk</span>
+              <span class="filter">Market Delta</span>
+              <span class="filter">Maintenance</span>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Unit</th>
+                  <th>Resident</th>
+                  <th>Rent</th>
+                  <th>Status</th>
+                  <th>Lease</th>
+                  <th>Signal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="badge">101</span></td>
+                  <td>Tenant A.</td>
+                  <td>$2,450</td>
+                  <td><span class="badge ok">Paid</span></td>
+                  <td>Renewal Ready</td>
+                  <td>Low Risk</td>
+                </tr>
+                <tr>
+                  <td><span class="badge">104</span></td>
+                  <td>Tenant M.</td>
+                  <td>$2,725</td>
+                  <td><span class="badge ok">Paid</span></td>
+                  <td>12 mo left</td>
+                  <td>Stable</td>
+                </tr>
+                <tr>
+                  <td><span class="badge">203</span></td>
+                  <td>Tenant K.</td>
+                  <td>$2,300</td>
+                  <td><span class="badge warn">Watch</span></td>
+                  <td>90 days</td>
+                  <td>Renewal Alert</td>
+                </tr>
+                <tr>
+                  <td><span class="badge">302</span></td>
+                  <td>Vacant</td>
+                  <td>$2,950</td>
+                  <td><span class="badge">Listed</span></td>
+                  <td>Open</td>
+                  <td>Market Upside</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="grid-3" style="margin-top: 20px">
+          <article class="card" style="grid-column: span 2">
+            <div class="eyebrow accent">Occupancy Signal</div>
+            <div class="chart" aria-label="Occupancy signal chart">
+              <div class="bar" style="height: 70%"></div>
+              <div class="bar" style="height: 78%"></div>
+              <div class="bar" style="height: 74%"></div>
+              <div class="bar" style="height: 88%"></div>
+              <div class="bar" style="height: 84%"></div>
+              <div class="bar" style="height: 98%"></div>
+            </div>
+          </article>
+          <article class="card dark">
+            <div class="eyebrow accent">Owner Takeaway</div>
+            <h3>Looks live. Feels premium. Easy to understand.</h3>
+            <p>
+              The demo is intentionally presentation-safe: it shows capability,
+              design quality, and the operating model without relying on a
+              fragile backend during the meeting.
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="shell">
+        <div class="brand">RENT-<span>RUBY</span></div>
+        <p>
+          Meeting-ready showcase: homepage, tenant portal, and owner rent roll
+          snapshot. Built for the Ruby Street owner conversation.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
