@@ -4,6 +4,7 @@ import {
   Activity,
   Bell,
   CheckCircle2,
+  Database,
   FileText,
   Filter,
   Search,
@@ -31,12 +32,12 @@ const rentRollSnapshot = [
 ];
 
 const filterStack = [
-  'Lease expiration',
-  'Late payment risk',
-  'Maintenance score',
-  'Market rent delta',
-  'Unit readiness',
-  'Owner priority',
+  'Chase deposit sync',
+  'Automatic legal notices',
+  'Read receipts',
+  'Signature metadata',
+  'Sublease risk',
+  'Offsite archive',
 ];
 
 const performanceData = [
@@ -49,12 +50,19 @@ const performanceData = [
 ];
 
 const techStack = [
-  { label: 'AI rent roll summaries', icon: Activity },
-  { label: 'Tenant portal documents', icon: FileText },
+  { label: 'Chase deposit matching', icon: Database },
+  { label: 'Timestamped legal notices', icon: FileText },
   { label: 'Smart building signals', icon: Zap },
-  { label: 'Legal/compliance log', icon: ShieldCheck },
+  { label: 'Signature audit trail', icon: ShieldCheck },
   { label: 'Owner-ready alerts', icon: Bell },
-  { label: 'Resident engagement', icon: Users },
+  { label: 'Sublease protections', icon: Users },
+];
+
+const safeguardStack = [
+  'Notice to Enter packets with sent/opened/acknowledged timestamps',
+  'Lease updates with tenant signature, IP/domain, device, and time evidence',
+  'Construction notifications archived with the exact document version',
+  'Sublease and guest-policy acknowledgments for false-claim defense',
 ];
 
 export const OwnerShowcaseSnapshot = () => {
@@ -71,8 +79,9 @@ export const OwnerShowcaseSnapshot = () => {
             </h2>
           </div>
           <p className="text-app-text/55 text-lg font-medium max-w-md">
-            A high-level view of the technology stack: filters, alerts, lease status,
-            resident activity, and market upside in one clean owner dashboard.
+            A high-level view of the owner-protection stack: Chase deposits,
+            automatic legal notices, signatures, read receipts, sublease
+            protection, and offsite evidence archives.
           </p>
         </div>
 
@@ -86,9 +95,13 @@ export const OwnerShowcaseSnapshot = () => {
             <div className="p-6 md:p-8 border-b border-app-border flex flex-col md:flex-row gap-4 md:items-center justify-between">
               <div>
                 <div className="text-[10px] font-black text-app-text/35 uppercase tracking-[0.25em] mb-2">
-                  3875 Ruby Street / Live Portfolio View
+                  3875 Ruby Street / Chase + Legal Evidence View
                 </div>
                 <h3 className="text-2xl font-black text-app-text">Intelligent Rent Roll</h3>
+                <p className="text-xs font-bold text-app-text/45 mt-2 max-w-xl">
+                  Updates when Chase deposits download, matches payments to units,
+                  flags exceptions, and stores deposit evidence offsite.
+                </p>
               </div>
               <div className="flex gap-2 flex-wrap">
                 <div className="px-3 py-2 rounded-full bg-app-text/5 text-[10px] font-black uppercase tracking-widest text-app-text/60 flex items-center gap-2">
@@ -198,6 +211,25 @@ export const OwnerShowcaseSnapshot = () => {
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-white rounded-[2.5rem] p-8 border border-app-border shadow-sm"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-black text-app-text">Owner Safeguards</h3>
+                <ShieldCheck className="w-5 h-5 text-app-accent" />
+              </div>
+              <div className="space-y-3">
+                {safeguardStack.map((safeguard) => (
+                  <div key={safeguard} className="p-4 rounded-2xl bg-app-text/[0.03] border border-app-border text-xs font-bold text-app-text/65 leading-relaxed">
+                    {safeguard}
+                  </div>
+                ))}
               </div>
             </motion.div>
           </div>

@@ -195,6 +195,95 @@
         color: var(--accent);
       }
 
+      .cover-map {
+        display: grid;
+        grid-template-columns: 1.08fr 0.92fr;
+        gap: 20px;
+        align-items: stretch;
+      }
+
+      .map-board {
+        min-height: 560px;
+        border-radius: 46px;
+        border: 1px solid var(--line);
+        overflow: hidden;
+        position: relative;
+        background:
+          linear-gradient(to top, rgba(11, 26, 45, 0.9), rgba(11, 26, 45, 0.2)),
+          url("https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=1800&auto=format&fit=crop")
+            center/cover;
+        box-shadow: 0 30px 90px rgba(11, 26, 45, 0.2);
+      }
+
+      .map-pin {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        width: 18px;
+        height: 18px;
+        border-radius: 99px;
+        background: var(--accent);
+        box-shadow: 0 0 0 10px rgba(255, 95, 31, 0.2);
+      }
+
+      .map-pin.ruby {
+        width: 26px;
+        height: 26px;
+        background: #fff;
+        box-shadow: 0 0 0 12px rgba(255, 255, 255, 0.22);
+      }
+
+      .map-label {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--ink);
+        padding: 9px 12px;
+        font-size: 10px;
+        font-weight: 950;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .transit-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .transit-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 14px;
+        align-items: center;
+        padding: 18px;
+        border-radius: 24px;
+        background: rgba(11, 26, 45, 0.04);
+        border: 1px solid var(--line);
+      }
+
+      .transit-row strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .transit-row span {
+        color: rgba(11, 26, 45, 0.56);
+        font-size: 12px;
+        font-weight: 750;
+      }
+
+      .time-badge {
+        border-radius: 999px;
+        padding: 10px 12px;
+        background: var(--ink);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 950;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
       .eyebrow {
         font-size: 10px;
         font-weight: 950;
@@ -447,6 +536,33 @@
         color: #9a5b00;
       }
 
+      .safeguard-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .safeguard {
+        border-radius: 30px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.84);
+        padding: 24px;
+      }
+
+      .safeguard strong {
+        display: block;
+        font-size: 20px;
+        margin: 10px 0 8px;
+        letter-spacing: -0.04em;
+      }
+
+      .safeguard p {
+        margin: 0;
+        color: rgba(11, 26, 45, 0.58);
+        line-height: 1.5;
+        font-weight: 650;
+      }
+
       .chart {
         display: grid;
         grid-template-columns: repeat(6, 1fr);
@@ -479,7 +595,8 @@
         }
 
         .hero,
-        .portal-wrap {
+        .portal-wrap,
+        .cover-map {
           grid-template-columns: 1fr;
         }
 
@@ -488,7 +605,8 @@
           min-height: 460px;
         }
 
-        .grid-3 {
+        .grid-3,
+        .safeguard-grid {
           grid-template-columns: 1fr;
         }
 
@@ -542,6 +660,62 @@
             <h3 class="serif" style="font-size: 40px; margin: 10px 0 0">
               Historic charm. Modern operations.
             </h3>
+          </div>
+        </div>
+      </section>
+
+      <section id="cover-map">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow accent">Cover Page / Hospital + Transit Map</div>
+            <h2>Built for nurses, healthcare workers, and car-light Oakland living.</h2>
+          </div>
+          <p>
+            The first thing the owner sees: Ruby is positioned near hospitals,
+            BART, bike routes, and daily essentials. Transit times are demo
+            estimates for presentation only.
+          </p>
+        </div>
+        <div class="cover-map">
+          <div class="map-board" aria-label="Hospital and transit map">
+            <div class="map-pin ruby" style="left: 48%; top: 52%"></div>
+            <div class="map-label" style="left: 48%; top: 44%">3875 Ruby</div>
+            <div class="map-pin" style="left: 42%; top: 36%"></div>
+            <div class="map-label" style="left: 31%; top: 31%">Kaiser</div>
+            <div class="map-pin" style="left: 64%; top: 42%"></div>
+            <div class="map-label" style="left: 75%; top: 38%">Summit</div>
+            <div class="map-pin" style="left: 59%; top: 68%"></div>
+            <div class="map-label" style="left: 72%; top: 70%">UCSF Oakland</div>
+            <div class="map-pin" style="left: 28%; top: 58%"></div>
+            <div class="map-label" style="left: 23%; top: 64%">BART</div>
+          </div>
+          <div class="card">
+            <div class="eyebrow accent">Nearby care + commute snapshot</div>
+            <h3 style="font-size: 36px; margin-top: 10px">
+              Easy to explain. Easy to lease.
+            </h3>
+            <div class="transit-list">
+              <div class="transit-row">
+                <div><strong>Kaiser Permanente Oakland</strong><span>Hospital/medical campus access</span></div>
+                <div class="time-badge">5 min bike</div>
+              </div>
+              <div class="transit-row">
+                <div><strong>Alta Bates Summit / Pill Hill</strong><span>Healthcare-worker commute story</span></div>
+                <div class="time-badge">7 min drive</div>
+              </div>
+              <div class="transit-row">
+                <div><strong>UCSF Benioff Children's Oakland</strong><span>Major regional care center</span></div>
+                <div class="time-badge">9 min drive</div>
+              </div>
+              <div class="transit-row">
+                <div><strong>Highland Hospital</strong><span>County medical center</span></div>
+                <div class="time-badge">12 min drive</div>
+              </div>
+              <div class="transit-row">
+                <div><strong>MacArthur BART</strong><span>SF/Berkeley commute connection</span></div>
+                <div class="time-badge">12 min walk</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -661,6 +835,75 @@
         </div>
       </section>
 
+      <section id="safeguards">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow accent">Owner Safeguards</div>
+            <h2>Protect the owner before there is a dispute.</h2>
+          </div>
+          <p>
+            The portal is not just convenient for tenants. It creates evidence:
+            timestamps, read receipts, signature records, notice history,
+            sublease acknowledgments, and offsite backups.
+          </p>
+        </div>
+        <div class="safeguard-grid">
+          <article class="safeguard">
+            <div class="badge ok">Automatic Legal Notices</div>
+            <strong>Notice to Enter, lease updates, and construction notices.</strong>
+            <p>
+              The portal can generate proper 94609 notice packets, deliver them
+              consistently, and store the exact notice version sent to Unit 105.
+            </p>
+          </article>
+          <article class="safeguard">
+            <div class="badge ok">Timestamped Read Receipts</div>
+            <strong>Sent, opened, viewed, acknowledged.</strong>
+            <p>
+              Every tenant-facing notice can carry a timestamped audit trail:
+              delivery time, first open, acknowledgment, IP/device metadata, and
+              the document hash.
+            </p>
+          </article>
+          <article class="safeguard">
+            <div class="badge">Signature Evidence</div>
+            <strong>Tenant signature with domain/location metadata.</strong>
+            <p>
+              Lease updates and disclosures can record signer name, unit,
+              timestamp, IP/domain, device, and geolocation approximation for
+              owner defense.
+            </p>
+          </article>
+          <article class="safeguard">
+            <div class="badge">Sublease Protection</div>
+            <strong>Proof they read occupancy and guest rules.</strong>
+            <p>
+              Resident acknowledgments can document sublease restrictions,
+              authorized occupants, guest policy reminders, and evidence against
+              later false claims.
+            </p>
+          </article>
+          <article class="safeguard">
+            <div class="badge">Offsite Archive</div>
+            <strong>Saved outside the device and building.</strong>
+            <p>
+              Notices, signatures, payment evidence, and maintenance records can
+              be mirrored to offsite storage so records survive device loss,
+              staff turnover, or local machine failure.
+            </p>
+          </article>
+          <article class="safeguard">
+            <div class="badge warn">False-Claim Defense</div>
+            <strong>Clear timeline beats memory.</strong>
+            <p>
+              If a tenant says they never saw a notice, never signed, or were
+              not told about construction, the owner has a clean event timeline
+              and document history.
+            </p>
+          </article>
+        </div>
+      </section>
+
       <section id="owner">
         <div class="section-head">
           <div>
@@ -669,8 +912,8 @@
           </div>
           <p>
             This is the meeting view: clear numbers, obvious filters, risk
-            cues, and enough detail to show the platform is real without forcing
-            the owner into the weeds.
+            cues, Chase deposit sync, automatic notices, and enough detail to
+            show the platform protects the owner without forcing them into the weeds.
           </p>
         </div>
         <div class="grid-3">
@@ -695,12 +938,16 @@
             <div>
               <div class="eyebrow accent">3875 Ruby Street</div>
               <h3 style="margin: 8px 0 0">Intelligent Rent Roll</h3>
+              <p style="margin: 8px 0 0; color: rgba(11,26,45,.56); font-weight: 700">
+                Updates when Chase deposits download, matches payments to units,
+                flags exceptions, and saves deposit evidence offsite.
+              </p>
             </div>
             <div class="filters">
-              <span class="filter">Lease Expiration</span>
-              <span class="filter">Payment Risk</span>
-              <span class="filter">Market Delta</span>
-              <span class="filter">Maintenance</span>
+              <span class="filter">Chase Deposit Sync</span>
+              <span class="filter">Auto Legal Notices</span>
+              <span class="filter">Offsite Archive</span>
+              <span class="filter">Sublease Risk</span>
             </div>
           </div>
           <div class="table-scroll">
