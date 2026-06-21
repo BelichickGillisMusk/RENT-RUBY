@@ -16,6 +16,8 @@
         --paper: #f7f4ef;
         --card: #ffffff;
         --line: rgba(11, 26, 45, 0.12);
+        --irish-green: #169b62;
+        --irish-orange: #ff883e;
       }
 
       * {
@@ -462,6 +464,107 @@
         padding: 0;
       }
 
+      .rent-dmc {
+        border-radius: 46px;
+        padding: 34px;
+        background:
+          linear-gradient(90deg, rgba(22, 155, 98, 0.14), rgba(255, 255, 255, 0.92), rgba(255, 136, 62, 0.16)),
+          #fff;
+        border: 2px solid rgba(22, 155, 98, 0.2);
+        box-shadow: 0 30px 90px rgba(11, 26, 45, 0.12);
+      }
+
+      .dmc-title {
+        margin: 0;
+        font-size: clamp(56px, 8vw, 118px);
+        line-height: 0.82;
+        letter-spacing: -0.08em;
+        text-transform: uppercase;
+      }
+
+      .dmc-title span:nth-child(1) {
+        color: var(--irish-green);
+      }
+
+      .dmc-title span:nth-child(2) {
+        color: var(--ink);
+      }
+
+      .dmc-title span:nth-child(3) {
+        color: var(--irish-orange);
+      }
+
+      .owner-metric-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin: 26px 0;
+      }
+
+      .owner-metric {
+        border-radius: 24px;
+        padding: 18px;
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid var(--line);
+      }
+
+      .owner-metric strong {
+        display: block;
+        font-size: 34px;
+        letter-spacing: -0.05em;
+      }
+
+      .owner-metric span {
+        color: rgba(11, 26, 45, 0.52);
+        font-size: 10px;
+        font-weight: 950;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .notification-feed {
+        display: grid;
+        gap: 12px;
+      }
+
+      .notification-row {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 14px;
+        align-items: center;
+        padding: 16px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.84);
+        border: 1px solid var(--line);
+      }
+
+      .source-dot {
+        width: 42px;
+        height: 42px;
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        background: var(--irish-green);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 950;
+      }
+
+      .source-dot.tenant {
+        background: var(--irish-orange);
+      }
+
+      .notification-row strong {
+        display: block;
+        margin-bottom: 3px;
+      }
+
+      .notification-row span {
+        color: rgba(11, 26, 45, 0.52);
+        font-size: 12px;
+        font-weight: 750;
+      }
+
       .table-head {
         padding: 26px;
         display: flex;
@@ -606,7 +709,12 @@
         }
 
         .grid-3,
-        .safeguard-grid {
+        .safeguard-grid,
+        .owner-metric-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .notification-row {
           grid-template-columns: 1fr;
         }
 
@@ -790,41 +898,48 @@
             </div>
           </div>
           <div class="card">
-            <div class="eyebrow accent">Tenant Portal / 94609 Legal-Ready</div>
+            <div class="eyebrow accent">Tenant 105 Portal / 94609 Legal-Ready</div>
             <h3 style="font-size: 38px; margin-top: 10px">
-              Simple portal items residents will actually use.
+              Month-to-month lease center, mailbox, and legal notices.
             </h3>
             <div class="info-list">
               <div class="info-row">
                 <div class="icon">01</div>
+                <div>
+                  <strong>Legal Month-to-Month Lease</strong>
+                  <p>Unit 105 lease packet with Oakland 94609 disclosures, tenant acknowledgment, and owner archive.</p>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="icon">02</div>
                 <div>
                   <strong>Maintenance</strong>
                   <p>Submit repair requests, track status, and keep a clean record for Unit 105.</p>
                 </div>
               </div>
               <div class="info-row">
-                <div class="icon">02</div>
+                <div class="icon">03</div>
                 <div>
                   <strong>Rent</strong>
                   <p>See current rent, payment status, receipts, and balance history in one place.</p>
                 </div>
               </div>
               <div class="info-row">
-                <div class="icon">03</div>
+                <div class="icon">04</div>
                 <div>
                   <strong>Notice to Enter</strong>
                   <p>Deliver and archive proper entry notices for Oakland 94609 requirements.</p>
                 </div>
               </div>
               <div class="info-row">
-                <div class="icon">04</div>
+                <div class="icon">05</div>
                 <div>
                   <strong>Lease Updates</strong>
-                  <p>Share annual updates, disclosures, and tenant acknowledgments with timestamps.</p>
+                  <p>Cross-check month-to-month updates against the 94609 tenant-code checklist before delivery.</p>
                 </div>
               </div>
               <div class="info-row">
-                <div class="icon">05</div>
+                <div class="icon">06</div>
                 <div>
                   <strong>Construction Notifications</strong>
                   <p>Notify residents about work windows, access needs, noise, and safety updates.</p>
@@ -907,14 +1022,46 @@
       <section id="owner">
         <div class="section-head">
           <div>
-            <div class="eyebrow accent">Owner Intelligence</div>
-            <h2>High-level rent roll snapshot.</h2>
+            <div class="eyebrow accent">Owner Portal</div>
+            <h2>RENT DMC makes owner decisions obvious.</h2>
           </div>
           <p>
-            This is the meeting view: clear numbers, obvious filters, risk
-            cues, Chase deposit sync, automatic notices, and enough detail to
-            show the platform protects the owner without forcing them into the weeds.
+            Larger owner-facing typography, Irish flag colors, rent roll,
+            Chase deposit sync, and a notification command center across GMs,
+            tenants, and properties.
           </p>
+        </div>
+        <div class="rent-dmc">
+          <div class="eyebrow">Irish flag owner command center</div>
+          <h2 class="dmc-title"><span>RENT</span> <span>D</span><span>MC</span></h2>
+          <div class="owner-metric-grid">
+            <div class="owner-metric"><strong>$72,450</strong><span>Rent roll</span></div>
+            <div class="owner-metric"><strong>98.2%</strong><span>Occupancy</span></div>
+            <div class="owner-metric"><strong>17</strong><span>New notifications</span></div>
+            <div class="owner-metric"><strong>5</strong><span>Legal packets ready</span></div>
+          </div>
+          <div class="notification-feed">
+            <div class="notification-row">
+              <div class="source-dot">GM</div>
+              <div><strong>GM · 3875 Ruby</strong><span>Chase deposit downloaded and matched to Unit 105 rent.</span></div>
+              <div class="badge ok">Matched</div>
+            </div>
+            <div class="notification-row">
+              <div class="source-dot tenant">105</div>
+              <div><strong>Tenant 105 direct</strong><span>Maintenance note received; timestamped and routed to GM queue.</span></div>
+              <div class="badge">Tenant</div>
+            </div>
+            <div class="notification-row">
+              <div class="source-dot">GM</div>
+              <div><strong>GM · Piedmont</strong><span>Notice to Enter packet ready for owner review and offsite archive.</span></div>
+              <div class="badge warn">Legal</div>
+            </div>
+            <div class="notification-row">
+              <div class="source-dot tenant">T</div>
+              <div><strong>Tenant direct · Berkeley Lofts</strong><span>Construction notification viewed; read receipt captured.</span></div>
+              <div class="badge ok">Viewed</div>
+            </div>
+          </div>
         </div>
         <div class="grid-3">
           <article class="card">

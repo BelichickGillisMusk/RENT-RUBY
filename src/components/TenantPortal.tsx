@@ -22,6 +22,7 @@ import {
   Cpu,
   ShieldAlert,
   FileWarning,
+  FileText,
   Gavel,
   Wrench,
   LayoutGrid,
@@ -125,11 +126,20 @@ const demoConstructionUpdates: ConstructionUpdate[] = [
 const demoNotices: TenantNotice[] = [
   {
     id: 1,
-    title: 'Building Rules 2026',
-    content: 'Your updated building rules, trash schedule, and guest policy are available in the Info Nook.',
+    title: 'Month-to-Month Lease Packet Ready',
+    content: 'Unit 105 month-to-month lease packet is ready with Oakland 94609 disclosures, Notice to Enter rules, construction notice workflow, and tenant acknowledgment timestamps.',
     status: 'Viewed',
     sent_at: '2026-06-17T09:00:00.000Z',
     viewed_at: '2026-06-17T09:08:00.000Z',
+  },
+  {
+    id: 2,
+    title: '94609 Tenant Code Checklist',
+    content: 'Legal safeguards cross-check: rent notices, entry notices, lease updates, construction notifications, and sublease acknowledgments are tracked for Unit 105.',
+    status: 'Acknowledged',
+    sent_at: '2026-06-18T11:20:00.000Z',
+    viewed_at: '2026-06-18T11:24:00.000Z',
+    acknowledged_at: '2026-06-18T11:25:00.000Z',
   },
 ];
 
@@ -710,6 +720,7 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
                       {[
                         { id: 'dashboard', label: 'Rent', icon: CreditCard, color: 'bg-ruby/10 text-ruby' },
                         { id: 'maintenance', label: 'Maint.', icon: Wrench, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
+                        { id: 'dashboard', label: 'Month-to-Month Lease', icon: FileText, color: 'bg-[#169B62]/10 text-[#169B62]' },
                         { id: 'dashboard', label: 'Notice to Enter', icon: Bell, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
                         { id: 'dashboard', label: 'Lease Updates', icon: FileWarning, color: 'bg-[#72CDF7]/10 text-[#72CDF7]' },
                         { id: 'dashboard', label: 'Construction', icon: Camera, color: 'bg-[#E24F9A]/10 text-[#E24F9A]' },

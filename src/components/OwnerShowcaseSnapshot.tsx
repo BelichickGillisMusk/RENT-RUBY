@@ -65,6 +65,37 @@ const safeguardStack = [
   'Sublease and guest-policy acknowledgments for false-claim defense',
 ];
 
+const notificationFeed = [
+  {
+    source: 'GM',
+    title: 'GM · 3875 Ruby',
+    detail: 'Chase deposit downloaded and matched to Unit 105 rent.',
+    badge: 'Matched',
+    color: 'bg-[#169B62]',
+  },
+  {
+    source: '105',
+    title: 'Tenant 105 direct',
+    detail: 'Maintenance note received; timestamped and routed to GM queue.',
+    badge: 'Tenant',
+    color: 'bg-[#FF883E]',
+  },
+  {
+    source: 'GM',
+    title: 'GM · Piedmont',
+    detail: 'Notice to Enter packet ready for owner review and offsite archive.',
+    badge: 'Legal',
+    color: 'bg-[#169B62]',
+  },
+  {
+    source: 'T',
+    title: 'Tenant direct · Berkeley Lofts',
+    detail: 'Construction notification viewed; read receipt captured.',
+    badge: 'Viewed',
+    color: 'bg-[#FF883E]',
+  },
+];
+
 export const OwnerShowcaseSnapshot = () => {
   return (
     <section id="rent-roll" className="py-28 bg-app-bg border-t border-app-border overflow-hidden">
@@ -72,16 +103,18 @@ export const OwnerShowcaseSnapshot = () => {
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-14">
           <div className="max-w-3xl">
             <div className="text-[10px] font-black text-app-accent uppercase tracking-[0.35em] mb-4">
-              Owner Meeting Snapshot
+              RENT DMC Owner Portal
             </div>
             <h2 className="text-5xl md:text-7xl font-black text-app-text uppercase tracking-tighter leading-[0.9]">
-              Rent roll that reads like a <span className="text-app-accent italic">command center</span>.
+              <span className="text-[#169B62]">RENT</span> <span className="text-app-text">D</span><span className="text-[#FF883E]">MC</span>
+              <br />
+              <span className="text-4xl md:text-6xl">owner command center.</span>
             </h2>
           </div>
           <p className="text-app-text/55 text-lg font-medium max-w-md">
-            A high-level view of the owner-protection stack: Chase deposits,
-            automatic legal notices, signatures, read receipts, sublease
-            protection, and offsite evidence archives.
+            Large owner-facing view with Irish flag colors, rent roll, GM and
+            tenant notifications, Chase deposits, automatic legal notices, read
+            receipts, sublease protection, and offsite archives.
           </p>
         </div>
 
@@ -168,6 +201,34 @@ export const OwnerShowcaseSnapshot = () => {
           </motion.div>
 
           <div className="xl:col-span-4 space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-r from-[#169B62]/15 via-white to-[#FF883E]/20 rounded-[2.5rem] p-8 border-2 border-[#169B62]/20 shadow-sm"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-black text-app-text">Notifications</h3>
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#169B62]">17 new</span>
+              </div>
+              <div className="space-y-3">
+                {notificationFeed.map((item) => (
+                  <div key={`${item.title}-${item.badge}`} className="grid grid-cols-[auto_1fr_auto] gap-3 items-center p-4 rounded-2xl bg-white/80 border border-app-border">
+                    <div className={`w-10 h-10 rounded-xl ${item.color} text-white text-[10px] font-black flex items-center justify-center`}>
+                      {item.source}
+                    </div>
+                    <div>
+                      <div className="text-sm font-black text-app-text">{item.title}</div>
+                      <div className="text-xs font-bold text-app-text/50 leading-relaxed">{item.detail}</div>
+                    </div>
+                    <div className="px-2 py-1 rounded-full bg-app-text/5 text-[9px] font-black uppercase tracking-widest text-app-text/50">
+                      {item.badge}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
