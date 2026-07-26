@@ -87,20 +87,20 @@
       }
       .hero-photo {
         position: absolute; inset: 0;
-        background:
-          linear-gradient(180deg, rgba(16,19,28,0.25) 0%, rgba(16,19,28,0.1) 35%, rgba(16,19,28,0.55) 72%, rgba(16,19,28,0.92) 100%),
-          linear-gradient(115deg, #6b5d4f 0%, #8a7a66 30%, #a2907a 55%, #5d564e 100%);
+        background: linear-gradient(115deg, #6b5d4f 0%, #8a7a66 30%, #a2907a 55%, #5d564e 100%);
         background-size: cover; background-position: center;
       }
       .hero-photo img {
         position: absolute; inset: 0; width: 100%; height: 100%;
-        object-fit: cover; z-index: -1;
+        object-fit: cover;
       }
       /* dulls the lower third of the building + right edge where the parked car sits */
       .hero-photo::after {
         content: '';
         position: absolute; inset: 0;
         background:
+          linear-gradient(180deg, rgba(16,19,28,0.35) 0%, rgba(16,19,28,0.08) 32%, transparent 48%),
+          linear-gradient(90deg, rgba(16,19,28,0.72) 0%, rgba(16,19,28,0.3) 28%, transparent 52%),
           linear-gradient(0deg, rgba(16,19,28,0.95) 0%, rgba(16,19,28,0.55) 22%, transparent 48%),
           linear-gradient(270deg, rgba(16,19,28,0.82) 0%, rgba(16,19,28,0.35) 22%, transparent 42%);
       }
