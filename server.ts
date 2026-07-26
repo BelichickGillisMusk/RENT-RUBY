@@ -315,6 +315,17 @@ db.exec(`
     accessed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (document_id) REFERENCES legal_library_2026(id)
   );
+
+  CREATE TABLE IF NOT EXISTS waitlist_signups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    email TEXT NOT NULL,
+    desired_move_in TEXT,
+    unit_pref TEXT,
+    notes TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
 `);
 
 // Migration: Add neighborhood column if it doesn't exist
@@ -1057,6 +1068,23 @@ async function startServer() {
       WHERE id = ?
     `).run(status, notes, req.params.id);
     res.json({ status: "ok" });
+  });
+
+  app.get("/api/waitlist", (req, res) => {
+    const rows = db.prepare("SELECT * FROM waitlist_signups ORDER BY created_at DESC").all();
+    res.json(rows);
+  });
+
+  app.post("/api/waitlist", (req, res) => {
+    const { name, phone, email, desired_move_in, unit_pref, notes } = req.body;
+    if (!name || !phone || !email) {
+      return res.status(400).json({ error: "name, phone, and email are required" });
+    }
+    const result = db.prepare(`
+      INSERT INTO waitlist_signups (name, phone, email, desired_move_in, unit_pref, notes)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(name, phone, email, desired_move_in || null, unit_pref || null, notes || null);
+    res.json({ id: result.lastInsertRowid });
   });
 
   app.get("/api/me", (req, res) => {
