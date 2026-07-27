@@ -228,6 +228,64 @@
       }
       .theme-toggle span { color: var(--accent); }
 
+      /* Wizard of Mosswood chat widget */
+      .wizard-fab {
+        position: fixed; bottom: 16px; right: 16px; z-index: 70;
+        display: inline-flex; align-items: center; gap: 10px;
+        background: var(--accent); color: #fff; border: 0; cursor: pointer;
+        border-radius: 999px; padding: 14px 20px;
+        font-weight: 900; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+        box-shadow: 0 16px 44px var(--accent-soft);
+      }
+      .wizard-fab:hover { background: var(--accent-deep); }
+      .wizard-fab .orb { font-size: 20px; }
+      .wizard-panel {
+        position: fixed; bottom: 84px; right: 16px; z-index: 70;
+        width: min(380px, calc(100vw - 32px)); height: min(520px, calc(100vh - 120px));
+        display: none; flex-direction: column;
+        background: #171b27; border: 1px solid var(--line); border-radius: 22px;
+        overflow: hidden; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+      }
+      .wizard-panel.open { display: flex; }
+      .wizard-head {
+        display: flex; align-items: center; gap: 12px;
+        padding: 14px 16px; border-bottom: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .wizard-head .orb {
+        width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+        background: var(--accent); font-size: 20px;
+      }
+      .wizard-head .who .nm { font-weight: 900; font-size: 14px; letter-spacing: 0.04em; }
+      .wizard-head .who .st { font-size: 11px; color: var(--muted); font-weight: 700; }
+      .wizard-head .close {
+        margin-left: auto; background: none; border: 0; color: var(--muted);
+        font-size: 20px; cursor: pointer; line-height: 1;
+      }
+      .wizard-log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+      .wizard-msg {
+        max-width: 85%; padding: 10px 14px; border-radius: 16px;
+        font-size: 14px; line-height: 1.5; font-weight: 600; white-space: pre-wrap;
+      }
+      .wizard-msg.bot { background: rgba(255, 255, 255, 0.08); border-top-left-radius: 4px; align-self: flex-start; }
+      .wizard-msg.user { background: var(--accent); color: #fff; border-top-right-radius: 4px; align-self: flex-end; }
+      .wizard-chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 12px 10px; }
+      .wizard-chips button {
+        background: rgba(255, 255, 255, 0.08); border: 1px solid var(--line); color: var(--text);
+        border-radius: 999px; padding: 7px 13px; font-size: 12px; font-weight: 800; cursor: pointer;
+      }
+      .wizard-chips button:hover { background: var(--accent); }
+      .wizard-msg.bot a { color: var(--accent); font-weight: 800; text-decoration: underline; }
+      .wizard-input { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); }
+      .wizard-input input {
+        flex: 1; background: rgba(255, 255, 255, 0.07); border: 1px solid var(--line);
+        border-radius: 999px; color: var(--text); padding: 12px 16px; font: inherit; font-weight: 600;
+      }
+      .wizard-input button {
+        background: var(--accent); color: #fff; border: 0; border-radius: 999px;
+        padding: 0 20px; font-weight: 900; font-size: 13px; text-transform: uppercase; cursor: pointer;
+      }
+
       @media (max-width: 860px) {
         .hero-inner { grid-template-columns: 1fr; }
         .amenity-rail { flex-direction: row; flex-wrap: wrap; }
@@ -370,6 +428,33 @@
 
     <button class="theme-toggle" id="theme-toggle" type="button">Accent: <span id="theme-name">Ruby</span> — tap to compare</button>
 
+    <button class="wizard-fab" id="wizard-fab" type="button" aria-haspopup="dialog">
+      <span class="orb">🧙</span> Ask the Wizard
+    </button>
+    <div class="wizard-panel" id="wizard-panel" role="dialog" aria-label="Wizard of Mosswood chat">
+      <div class="wizard-head">
+        <div class="orb">🧙</div>
+        <div class="who">
+          <div class="nm">Wizard of Mosswood</div>
+          <div class="st">Ruby Building concierge · always in</div>
+        </div>
+        <button class="close" id="wizard-close" aria-label="Close chat">×</button>
+      </div>
+      <div class="wizard-log" id="wizard-log">
+        <div class="wizard-msg bot">Greetings, traveler of Mosswood. I keep the lore of the Ruby Building — and the neighborhood: BART times, tickets, food, shopping, parking. What do you seek?</div>
+      </div>
+      <div class="wizard-chips" id="wizard-chips">
+        <button type="button" data-q="When does BART run from MacArthur?">BART times</button>
+        <button type="button" data-q="Where should I eat nearby?">Eats nearby</button>
+        <button type="button" data-q="How does street parking and permits work in 94609?">Parking</button>
+        <button type="button" data-q="What amenities does the building have?">Building</button>
+      </div>
+      <form class="wizard-input" id="wizard-form">
+        <input id="wizard-text" placeholder="Ask about the building, the block…" autocomplete="off" />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+
     <script>
       const toggle = document.getElementById('theme-toggle');
       const themeName = document.getElementById('theme-name');
@@ -378,6 +463,98 @@
         const orange = root.getAttribute('data-theme') === 'orange';
         if (orange) { root.removeAttribute('data-theme'); themeName.textContent = 'Ruby'; }
         else { root.setAttribute('data-theme', 'orange'); themeName.textContent = 'Orange'; }
+      });
+
+      // Wizard of Mosswood — Gemini via /api/wizard, scripted lore on static hosting
+      const wizFab = document.getElementById('wizard-fab');
+      const wizPanel = document.getElementById('wizard-panel');
+      const wizLog = document.getElementById('wizard-log');
+      const wizForm = document.getElementById('wizard-form');
+      const wizText = document.getElementById('wizard-text');
+      const wizHistory = [];
+      const wizSession = 'wiz-' + Math.random().toString(36).slice(2, 10) + '-' + Date.now().toString(36);
+
+      wizFab.addEventListener('click', () => { wizPanel.classList.toggle('open'); wizText.focus(); });
+      document.getElementById('wizard-close').addEventListener('click', () => wizPanel.classList.remove('open'));
+      document.getElementById('wizard-chips').addEventListener('click', (e) => {
+        const q = e.target.dataset && e.target.dataset.q;
+        if (q) { wizText.value = q; wizForm.requestSubmit(); }
+      });
+
+      // Render text with bare URLs as safe anchor elements (no HTML injection)
+      function wizRender(div, text) {
+        div.replaceChildren();
+        const parts = String(text).split(/(https?:\/\/[^\s)]+)/g);
+        for (const part of parts) {
+          if (/^https?:\/\//.test(part)) {
+            const a = document.createElement('a');
+            a.href = part; a.target = '_blank'; a.rel = 'noopener';
+            a.textContent = part.replace(/^https?:\/\/(www\.)?/, '').split('/')[0];
+            div.appendChild(a);
+          } else {
+            div.appendChild(document.createTextNode(part));
+          }
+        }
+      }
+      function wizSay(text, who) {
+        const div = document.createElement('div');
+        div.className = 'wizard-msg ' + who;
+        wizRender(div, text);
+        wizLog.appendChild(div);
+        wizLog.scrollTop = wizLog.scrollHeight;
+        return div;
+      }
+
+      function wizLore(q) {
+        const s = q.toLowerCase();
+        if (/(price|rent|cost|available|vacan|how much)/.test(s))
+          return "Availability shifts like the fog, friend. Join the waiting list below, or call or text (415) 900-8563 and the keepers will tell you what's open.";
+        if (/(bart|train|schedule|commute)/.test(s))
+          return "MacArthur BART is about 10 minutes on foot. Station lore: https://www.bart.gov/stations/mcar — live schedules: https://www.bart.gov/schedules";
+        if (/(ticket|concert|show|event|theater|theatre|fox|paramount)/.test(s))
+          return "The Fox Theater and Paramount Theatre glow just down Telegraph and Broadway. Summon tickets here: https://www.ticketmaster.com/discover/concerts/oakland";
+        if (/(eat|restaurant|food|dinner|lunch|coffee|cafe|brunch)/.test(s))
+          return "Within two miles: Temescal's tables on Telegraph, Piedmont Ave's cafés, and KONO's kitchens. Behold the map: https://www.google.com/maps/search/restaurants+near+3875+Ruby+St+Oakland";
+        if (/(shop|store|grocery|target|trader|mall)/.test(s))
+          return "Target, Trader Joe's, and Chick-fil-A are ~10 minutes by car or bus; Piedmont Ave boutiques and Bay Street Emeryville close behind. Map: https://www.google.com/maps/search/shopping+near+3875+Ruby+St+Oakland";
+        if (/(permit|street parking|parking rule|rpp|sweep)/.test(s))
+          return "The building keeps gated garage parking. Street parking in 94609 follows Oakland's residential permit rules — permits here: https://www.oaklandca.gov/services/apply-for-a-residential-parking-permit";
+        if (/(walk|transit|score|bus)/.test(s))
+          return "Walk Score 94, Transit Score 88. Kaiser, Mosswood Park, and MacArthur BART are about 10 minutes on foot; Target, Trader Joe's, and Chick-fil-A about 10 by car or bus.";
+        if (/(amenit|laundry|parking|garage|package|mail|camera|secur|building)/.test(s))
+          return "Within these 1924 walls: a secure package & mail room, 24/7 AI security cameras, gated garage parking, and an online tenant portal.";
+        if (/(waitlist|wait list|apply|tour|visit|see|viewing)/.test(s))
+          return "The waiting list form is just below — leave your name and the keepers will summon you when a door opens.";
+        if (/(contact|phone|call|email|text|reach)/.test(s))
+          return "Call or text (415) 900-8563, or write to hello@rent-ruby.com. Both paths are answered swiftly.";
+        if (/(maintenance|repair|broken|leak|tenant)/.test(s))
+          return "Dwellers of the Ruby: use the tenant portal for maintenance, or call (415) 900-8563 if it cannot wait.";
+        if (/(neighborhood|mosswood|oakland|park|area|around)/.test(s))
+          return "Mosswood is my domain — the park across the way, Piedmont Ave cafés, Temescal tables, and BART to whisk you anywhere. Few blocks in Oakland walk this well.";
+        return "I speak only of the Ruby Building and its realm — BART, eats, shopping, parking, amenities, the waiting list. For all else, call (415) 900-8563 or email hello@rent-ruby.com.";
+      }
+
+      wizForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const q = wizText.value.trim();
+        if (!q) return;
+        wizText.value = '';
+        wizSay(q, 'user');
+        wizHistory.push({ role: 'user', text: q });
+        const pending = wizSay('…', 'bot');
+        let reply = null;
+        try {
+          const res = await fetch('/api/wizard', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: wizHistory, sessionId: wizSession }),
+          });
+          if (res.ok) reply = (await res.json()).reply;
+        } catch {}
+        if (!reply) reply = wizLore(q);
+        wizRender(pending, reply);
+        wizHistory.push({ role: 'model', text: reply });
+        wizLog.scrollTop = wizLog.scrollHeight;
       });
 
       const form = document.getElementById('waitlist-form');
