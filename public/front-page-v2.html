@@ -465,7 +465,9 @@
       const wizForm = document.getElementById('wizard-form');
       const wizText = document.getElementById('wizard-text');
       const wizHistory = [];
-      const wizSession = 'wiz-' + Math.random().toString(36).slice(2, 10) + '-' + Date.now().toString(36);
+      const buf = new Uint8Array(6);
+      crypto.getRandomValues(buf);
+      const wizSession = 'wiz-' + Array.from(buf, x => x.toString(16).padStart(2, '0')).join('') + '-' + Date.now().toString(36);
 
       wizFab.addEventListener('click', () => { wizPanel.classList.toggle('open'); wizText.focus(); });
       document.getElementById('wizard-close').addEventListener('click', () => wizPanel.classList.remove('open'));
