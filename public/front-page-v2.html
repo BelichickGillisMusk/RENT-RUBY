@@ -19,11 +19,6 @@
         --muted: rgba(247, 248, 251, 0.72);
         --line: rgba(255, 255, 255, 0.16);
       }
-      :root[data-theme='orange'] {
-        --accent: #ff5f1f;
-        --accent-deep: #c2410c;
-        --accent-soft: rgba(255, 95, 31, 0.16);
-      }
 
       * { box-sizing: border-box; }
       html { scroll-behavior: smooth; }
@@ -65,6 +60,22 @@
         font-size: 11px; font-weight: 800; letter-spacing: 0.14em;
         color: var(--muted); border: 1px solid var(--line);
         padding: 8px 14px; border-radius: 999px; white-space: nowrap;
+      }
+      .badge-live {
+        font-size: 11px; font-weight: 900; letter-spacing: 0.14em;
+        color: #22c55e; border: 1px solid #22c55e;
+        padding: 8px 14px; border-radius: 999px; white-space: nowrap;
+        display: flex; align-items: center; gap: 6px;
+      }
+      .badge-live::before {
+        content: '';
+        width: 6px; height: 6px;
+        background: #22c55e; border-radius: 50%;
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
       }
       .btn {
         display: inline-flex; align-items: center; justify-content: center; gap: 10px;
@@ -218,15 +229,6 @@
       }
       footer b { color: var(--text); }
 
-      /* Theme A/B toggle — for the review meeting; remove before final deploy */
-      .theme-toggle {
-        position: fixed; bottom: 88px; left: 16px; z-index: 60;
-        background: var(--panel); border: 1px solid var(--line);
-        border-radius: 999px; padding: 8px 14px;
-        font-size: 11px; font-weight: 900; letter-spacing: 0.12em;
-        color: var(--text); cursor: pointer; text-transform: uppercase;
-      }
-      .theme-toggle span { color: var(--accent); }
 
       /* Wizard of Mosswood chat widget */
       .wizard-fab {
@@ -306,6 +308,7 @@
           </div>
         </div>
         <div class="top-actions">
+          <div class="badge-live">LIVE</div>
           <div class="badge-year">EST. 1924 · 100 YEARS</div>
           <a class="btn btn-waitlist" href="#waitlist">Join the Waiting List</a>
         </div>
@@ -426,7 +429,6 @@
       </footer>
     </div>
 
-    <button class="theme-toggle" id="theme-toggle" type="button">Accent: <span id="theme-name">Ruby</span> — tap to compare</button>
 
     <button class="wizard-fab" id="wizard-fab" type="button" aria-haspopup="dialog">
       <span class="orb">🧙</span> Ask the Wizard
@@ -456,15 +458,6 @@
     </div>
 
     <script>
-      const toggle = document.getElementById('theme-toggle');
-      const themeName = document.getElementById('theme-name');
-      toggle.addEventListener('click', () => {
-        const root = document.documentElement;
-        const orange = root.getAttribute('data-theme') === 'orange';
-        if (orange) { root.removeAttribute('data-theme'); themeName.textContent = 'Ruby'; }
-        else { root.setAttribute('data-theme', 'orange'); themeName.textContent = 'Orange'; }
-      });
-
       // Wizard of Mosswood — Gemini via /api/wizard, scripted lore on static hosting
       const wizFab = document.getElementById('wizard-fab');
       const wizPanel = document.getElementById('wizard-panel');
