@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rent-Ruby | 3875 Ruby St, Oakland</title>
+    <meta
+      name="description"
+      content="The Ruby Building — 3875 Ruby St, Oakland CA 94609. Walk Score 94, Transit 88. Historic 1924 building steps from Mosswood Park, Kaiser, and MacArthur BART. Join the waiting list."
+    />
+    <style>
+      :root {
+        --accent: #e0115f;
+        --accent-deep: #9b111e;
+        --accent-soft: rgba(224, 17, 95, 0.14);
+        --ink: #10131c;
+        --panel: rgba(16, 19, 28, 0.82);
+        --text: #f7f8fb;
+        --muted: rgba(247, 248, 251, 0.72);
+        --line: rgba(255, 255, 255, 0.16);
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--ink);
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+      a { color: inherit; text-decoration: none; }
+      .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+
+      /* ---------- Header: NAP, no logo box ---------- */
+      .topbar {
+        position: sticky; top: 0; z-index: 40;
+        background: rgba(16, 19, 28, 0.92);
+        backdrop-filter: blur(18px);
+        border-bottom: 1px solid var(--line);
+      }
+      .topbar-inner {
+        min-height: 76px;
+        display: flex; align-items: center; justify-content: space-between; gap: 18px;
+        padding: 10px 0;
+        flex-wrap: wrap;
+      }
+      .nap { line-height: 1.25; }
+      .nap .name {
+        font-size: clamp(18px, 2.6vw, 24px);
+        font-weight: 900; letter-spacing: 0.14em;
+      }
+      .nap .name span { color: var(--accent); }
+      .nap .addr {
+        font-size: clamp(12px, 1.6vw, 14px);
+        color: var(--muted); font-weight: 600; letter-spacing: 0.04em;
+      }
+      .nap .addr a { color: var(--text); font-weight: 800; }
+      .top-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+      .badge-year {
+        font-size: 11px; font-weight: 800; letter-spacing: 0.14em;
+        color: var(--muted); border: 1px solid var(--line);
+        padding: 8px 14px; border-radius: 999px; white-space: nowrap;
+      }
+      .badge-live {
+        font-size: 11px; font-weight: 900; letter-spacing: 0.14em;
+        color: #22c55e; border: 1px solid #22c55e;
+        padding: 8px 14px; border-radius: 999px; white-space: nowrap;
+        display: flex; align-items: center; gap: 6px;
+      }
+      .badge-live::before {
+        content: '';
+        width: 6px; height: 6px;
+        background: #22c55e; border-radius: 50%;
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+        font-weight: 900; letter-spacing: 0.06em; border-radius: 999px;
+        border: 0; cursor: pointer; white-space: nowrap;
+      }
+      .btn-waitlist {
+        background: var(--accent); color: #fff;
+        padding: 12px 22px; font-size: 13px; text-transform: uppercase;
+        box-shadow: 0 10px 30px var(--accent-soft);
+      }
+      .btn-waitlist:hover { background: var(--accent-deep); }
+
+      /* ---------- Hero ---------- */
+      .hero {
+        position: relative;
+        min-height: calc(100vh - 76px);
+        display: flex; flex-direction: column; justify-content: flex-end;
+        overflow: hidden;
+      }
+      .hero-photo {
+        position: absolute; inset: 0;
+        background: linear-gradient(115deg, #6b5d4f 0%, #8a7a66 30%, #a2907a 55%, #5d564e 100%);
+        background-size: cover; background-position: center;
+      }
+      .hero-photo img {
+        position: absolute; inset: 0; width: 100%; height: 100%;
+        object-fit: cover;
+      }
+      /* dulls the lower third of the building + right edge where the parked car sits */
+      .hero-photo::after {
+        content: '';
+        position: absolute; inset: 0;
+        background:
+          linear-gradient(180deg, rgba(16,19,28,0.35) 0%, rgba(16,19,28,0.08) 32%, transparent 48%),
+          linear-gradient(90deg, rgba(16,19,28,0.72) 0%, rgba(16,19,28,0.3) 28%, transparent 52%),
+          linear-gradient(0deg, rgba(16,19,28,0.95) 0%, rgba(16,19,28,0.55) 22%, transparent 48%),
+          linear-gradient(270deg, rgba(16,19,28,0.82) 0%, rgba(16,19,28,0.35) 22%, transparent 42%);
+      }
+      .hero-inner {
+        position: relative; z-index: 2;
+        display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 28px;
+        align-items: end;
+        padding: 48px 0 26px;
+      }
+
+      /* Facts replace the slogans */
+      .fact-block h1 {
+        margin: 0 0 10px;
+        font-size: clamp(34px, 6vw, 64px);
+        font-weight: 950; letter-spacing: -0.02em; line-height: 1.02;
+        text-transform: uppercase;
+      }
+      .fact-block h1 span { color: var(--accent); }
+      .score-chips { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 16px; }
+      .chip {
+        background: var(--panel); border: 1px solid var(--line);
+        border-radius: 999px; padding: 10px 16px;
+        font-size: 13px; font-weight: 800; letter-spacing: 0.04em;
+      }
+      .chip b { color: var(--accent); }
+      .fact-lines { max-width: 620px; color: var(--muted); font-size: 15px; line-height: 1.6; font-weight: 600; margin: 0 0 22px; }
+      .fact-lines b { color: var(--text); }
+
+      /* Big live contact buttons */
+      .contact-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 26px; }
+      .btn-call, .btn-email {
+        padding: 20px 34px; font-size: 17px; text-transform: uppercase;
+      }
+      .btn-call { background: var(--accent); color: #fff; box-shadow: 0 14px 40px var(--accent-soft); }
+      .btn-call:hover { background: var(--accent-deep); }
+      .btn-email { background: rgba(255,255,255,0.1); color: var(--text); border: 1px solid var(--line); }
+      .btn-email:hover { background: rgba(255,255,255,0.2); }
+      .btn small { display: block; font-size: 10px; letter-spacing: 0.18em; opacity: 0.8; }
+
+      /* Right-side amenity rail (covers the parked-car edge) */
+      .amenity-rail {
+        display: flex; flex-direction: column; gap: 10px;
+        background: var(--panel); border: 1px solid var(--line);
+        border-radius: 22px; padding: 18px;
+      }
+      .amenity-rail h3 {
+        margin: 0 0 4px; font-size: 11px; font-weight: 900;
+        letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent);
+      }
+      .amenity-rail div {
+        font-size: 13px; font-weight: 700; color: var(--text);
+        padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.06);
+      }
+
+      /* Amenity band — bottom of page one */
+      .amenity-band {
+        position: relative; z-index: 2;
+        border-top: 1px solid var(--line);
+        background: rgba(16, 19, 28, 0.94);
+      }
+      .amenity-band .shell {
+        display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+        padding: 16px 0;
+      }
+      .amenity-band .label {
+        font-size: 11px; font-weight: 900; letter-spacing: 0.22em;
+        text-transform: uppercase; color: var(--accent); margin-right: 6px;
+      }
+      .anchor-pill {
+        margin-left: auto;
+        font-size: 12px; font-weight: 900; letter-spacing: 0.14em;
+        background: #fff; color: var(--ink);
+        border-radius: 999px; padding: 12px 20px;
+      }
+
+      /* ---------- Page two ---------- */
+      .page-two { background: linear-gradient(180deg, #171b27 0%, #10131c 100%); padding-bottom: 80px; }
+      .section { padding: 56px 0 0; }
+      .section h2 {
+        margin: 0 0 8px; font-size: clamp(24px, 3.6vw, 38px);
+        font-weight: 950; letter-spacing: -0.01em; text-transform: uppercase;
+      }
+      .section h2 span { color: var(--accent); }
+      .section .sub { color: var(--muted); font-weight: 600; margin: 0 0 24px; max-width: 640px; line-height: 1.6; }
+
+      .walk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+      .walk-card {
+        background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 20px;
+      }
+      .walk-card .big { font-size: 40px; font-weight: 950; color: var(--accent); line-height: 1; }
+      .walk-card .cap { font-size: 12px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+      .walk-card p { margin: 10px 0 0; color: var(--muted); font-size: 14px; line-height: 1.55; font-weight: 600; }
+
+      /* Waiting list form */
+      .waitlist-card {
+        background: var(--panel); border: 1px solid var(--line);
+        border-radius: 24px; padding: 30px;
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px;
+      }
+      .waitlist-card label { display: block; font-size: 11px; font-weight: 900; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+      .waitlist-card input, .waitlist-card select, .waitlist-card textarea {
+        width: 100%; background: rgba(255,255,255,0.07); border: 1px solid var(--line);
+        border-radius: 12px; color: var(--text); padding: 13px 14px;
+        font: inherit; font-weight: 600;
+      }
+      .waitlist-card textarea { resize: vertical; min-height: 60px; }
+      .waitlist-full { grid-column: 1 / -1; }
+      .waitlist-note { grid-column: 1 / -1; font-size: 12px; color: var(--muted); font-weight: 600; }
+      .waitlist-status { grid-column: 1 / -1; font-weight: 800; color: var(--accent); display: none; }
+
+      footer {
+        border-top: 1px solid var(--line);
+        padding: 26px 0 40px; color: var(--muted);
+        font-size: 13px; font-weight: 600;
+      }
+      footer b { color: var(--text); }
+
+
+      /* Wizard of Mosswood chat widget */
+      .wizard-fab {
+        position: fixed; bottom: 16px; right: 16px; z-index: 70;
+        display: inline-flex; align-items: center; gap: 10px;
+        background: var(--accent); color: #fff; border: 0; cursor: pointer;
+        border-radius: 999px; padding: 14px 20px;
+        font-weight: 900; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+        box-shadow: 0 16px 44px var(--accent-soft);
+      }
+      .wizard-fab:hover { background: var(--accent-deep); }
+      .wizard-fab .orb { font-size: 20px; }
+      .wizard-panel {
+        position: fixed; bottom: 84px; right: 16px; z-index: 70;
+        width: min(380px, calc(100vw - 32px)); height: min(520px, calc(100vh - 120px));
+        display: none; flex-direction: column;
+        background: #171b27; border: 1px solid var(--line); border-radius: 22px;
+        overflow: hidden; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+      }
+      .wizard-panel.open { display: flex; }
+      .wizard-head {
+        display: flex; align-items: center; gap: 12px;
+        padding: 14px 16px; border-bottom: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .wizard-head .orb {
+        width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+        background: var(--accent); font-size: 20px;
+      }
+      .wizard-head .who .nm { font-weight: 900; font-size: 14px; letter-spacing: 0.04em; }
+      .wizard-head .who .st { font-size: 11px; color: var(--muted); font-weight: 700; }
+      .wizard-head .close {
+        margin-left: auto; background: none; border: 0; color: var(--muted);
+        font-size: 20px; cursor: pointer; line-height: 1;
+      }
+      .wizard-log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+      .wizard-msg {
+        max-width: 85%; padding: 10px 14px; border-radius: 16px;
+        font-size: 14px; line-height: 1.5; font-weight: 600; white-space: pre-wrap;
+      }
+      .wizard-msg.bot { background: rgba(255, 255, 255, 0.08); border-top-left-radius: 4px; align-self: flex-start; }
+      .wizard-msg.user { background: var(--accent); color: #fff; border-top-right-radius: 4px; align-self: flex-end; }
+      .wizard-chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 12px 10px; }
+      .wizard-chips button {
+        background: rgba(255, 255, 255, 0.08); border: 1px solid var(--line); color: var(--text);
+        border-radius: 999px; padding: 7px 13px; font-size: 12px; font-weight: 800; cursor: pointer;
+      }
+      .wizard-chips button:hover { background: var(--accent); }
+      .wizard-msg.bot a { color: var(--accent); font-weight: 800; text-decoration: underline; }
+      .wizard-input { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); }
+      .wizard-input input {
+        flex: 1; background: rgba(255, 255, 255, 0.07); border: 1px solid var(--line);
+        border-radius: 999px; color: var(--text); padding: 12px 16px; font: inherit; font-weight: 600;
+      }
+      .wizard-input button {
+        background: var(--accent); color: #fff; border: 0; border-radius: 999px;
+        padding: 0 20px; font-weight: 900; font-size: 13px; text-transform: uppercase; cursor: pointer;
+      }
+
+      @media (max-width: 860px) {
+        .hero-inner { grid-template-columns: 1fr; }
+        .amenity-rail { flex-direction: row; flex-wrap: wrap; }
+        .anchor-pill { margin-left: 0; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header = NAP. No logo box. -->
+    <header class="topbar">
+      <div class="shell topbar-inner">
+        <div class="nap">
+          <div class="name">RENT <span>RUBY</span></div>
+          <div class="addr">
+            3875 Ruby St, Oakland, CA 94609 ·
+            <a href="tel:+14159008563">(415) 900-8563</a> ·
+            <a href="mailto:hello@rent-ruby.com">hello@rent-ruby.com</a>
+          </div>
+        </div>
+        <div class="top-actions">
+          <div class="badge-live">LIVE</div>
+          <div class="badge-year">EST. 1924 · 100 YEARS</div>
+          <a class="btn btn-waitlist" href="#waitlist">Join the Waiting List</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page one -->
+    <section class="hero">
+      <div class="hero-photo">
+        <img src="assets/ruby-building.jpg" alt="The Ruby Building, 3875 Ruby St, Oakland" onerror="this.remove()" />
+      </div>
+
+      <div class="shell hero-inner">
+        <div class="fact-block">
+          <!-- Slogans removed: facts lead instead -->
+          <h1>3875 Ruby St.<br /><span>Oakland, CA</span></h1>
+          <div class="score-chips">
+            <div class="chip">Walk Score <b>94</b></div>
+            <div class="chip">Transit Score <b>88</b></div>
+            <div class="chip">Built <b>1924</b></div>
+          </div>
+          <p class="fact-lines">
+            <b>Kaiser, Mosswood Park, and MacArthur BART</b> about 10 minutes on foot.
+            <b>Target, Trader Joe's, Chick-fil-A</b> about 10 minutes by car or bus.
+          </p>
+          <div class="contact-row">
+            <a class="btn btn-call" href="tel:+14159008563">
+              <span>(415) 900-8563 <small>Call / Text now</small></span>
+            </a>
+            <a class="btn btn-email" href="mailto:hello@rent-ruby.com?subject=Ruby%20Building%20Inquiry">
+              <span>hello@rent-ruby.com <small>Email the building</small></span>
+            </a>
+          </div>
+        </div>
+
+        <aside class="amenity-rail" aria-label="Building amenities">
+          <h3>In the Building</h3>
+          <div>Historic 1924 architecture</div>
+          <div>Secure package &amp; mail room</div>
+          <div>24/7 AI security cameras</div>
+          <div>Gated garage parking</div>
+          <div>On-site management portal</div>
+        </aside>
+      </div>
+
+      <!-- Amenities: bottom of page one -->
+      <div class="amenity-band">
+        <div class="shell">
+          <span class="label">Steps Away</span>
+          <span class="chip">Mosswood Park</span>
+          <span class="chip">MacArthur BART</span>
+          <span class="chip">Kaiser Permanente</span>
+          <span class="chip">Piedmont Ave</span>
+          <a class="anchor-pill" href="#walk-scores">WALK SCORES · MAP · AMENITIES ↓</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Page two: amenities again at the top -->
+    <div class="page-two">
+      <section class="section" id="amenities">
+        <div class="shell">
+          <h2>Amenities, <span>Up Front.</span></h2>
+          <p class="sub">Everything in and around the Ruby Building — no scrolling required.</p>
+          <div class="walk-grid">
+            <div class="walk-card"><div class="cap">Building</div><p>Historic 1924 architecture · secure mail room · gated garage · 24/7 AI security cameras · online tenant portal.</p></div>
+            <div class="walk-card"><div class="cap">Neighborhood</div><p>Mosswood Park across the way · Piedmont Ave cafés · Temescal restaurants · weekend farmers markets.</p></div>
+            <div class="walk-card"><div class="cap">Transit</div><p>MacArthur BART about 10 minutes on foot · AC Transit lines on Telegraph and Broadway · quick 580/24 access.</p></div>
+            <div class="walk-card"><div class="cap">Essentials</div><p>Kaiser Permanente up the block · Target, Trader Joe's, and Chick-fil-A about 10 minutes by car or bus.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="walk-scores">
+        <div class="shell">
+          <h2>Walk <span>Scores.</span></h2>
+          <div class="walk-grid">
+            <div class="walk-card"><div class="big">94</div><div class="cap">Walk Score</div><p>Daily errands do not require a car.</p></div>
+            <div class="walk-card"><div class="big">88</div><div class="cap">Transit Score</div><p>Excellent transit — BART and AC Transit nearby.</p></div>
+            <div class="walk-card"><div class="big">10</div><div class="cap">Minutes on foot</div><p>Kaiser, Mosswood Park, and MacArthur BART.</p></div>
+            <div class="walk-card"><div class="big">10</div><div class="cap">Minutes by car or bus</div><p>Target, Trader Joe's, Chick-fil-A, and more.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="waitlist">
+        <div class="shell">
+          <h2>Join the <span>Waiting List.</span></h2>
+          <p class="sub">Units at the Ruby Building move fast. Leave your details and we will reach out the moment one opens up.</p>
+          <form class="waitlist-card" id="waitlist-form">
+            <div><label for="wl-name">Full name</label><input id="wl-name" name="name" required autocomplete="name" /></div>
+            <div><label for="wl-phone">Phone</label><input id="wl-phone" name="phone" type="tel" required autocomplete="tel" /></div>
+            <div><label for="wl-email">Email</label><input id="wl-email" name="email" type="email" required autocomplete="email" /></div>
+            <div><label for="wl-move">Desired move-in</label><input id="wl-move" name="desired_move_in" type="month" /></div>
+            <div>
+              <label for="wl-unit">Unit preference</label>
+              <select id="wl-unit" name="unit_pref">
+                <option value="">No preference</option>
+                <option>Studio</option>
+                <option>1 Bedroom</option>
+                <option>2 Bedroom</option>
+              </select>
+            </div>
+            <div class="waitlist-full"><label for="wl-notes">Anything else?</label><textarea id="wl-notes" name="notes"></textarea></div>
+            <button class="btn btn-waitlist waitlist-full" type="submit" style="padding: 18px; font-size: 15px;">Add Me to the List</button>
+            <div class="waitlist-status" id="wl-status"></div>
+            <div class="waitlist-note">Prefer to talk? <a href="tel:+14159008563"><b>(415) 900-8563</b></a> — calls and texts answered fast.</div>
+          </form>
+        </div>
+      </section>
+
+      <footer>
+        <div class="shell">
+          <b>Rent Ruby</b> · 3875 Ruby St, Oakland, CA 94609 ·
+          <a href="tel:+14159008563">(415) 900-8563</a> ·
+          <a href="mailto:hello@rent-ruby.com">hello@rent-ruby.com</a> · Est. 1924
+        </div>
+      </footer>
+    </div>
+
+
+    <button class="wizard-fab" id="wizard-fab" type="button" aria-haspopup="dialog">
+      <span class="orb">🧙</span> Ask the Wizard
+    </button>
+    <div class="wizard-panel" id="wizard-panel" role="dialog" aria-label="Wizard of Mosswood chat">
+      <div class="wizard-head">
+        <div class="orb">🧙</div>
+        <div class="who">
+          <div class="nm">Wizard of Mosswood</div>
+          <div class="st">Ruby Building concierge · always in</div>
+        </div>
+        <button class="close" id="wizard-close" aria-label="Close chat">×</button>
+      </div>
+      <div class="wizard-log" id="wizard-log">
+        <div class="wizard-msg bot">Greetings, traveler of Mosswood. I keep the lore of the Ruby Building — and the neighborhood: BART times, tickets, food, shopping, parking. What do you seek?</div>
+      </div>
+      <div class="wizard-chips" id="wizard-chips">
+        <button type="button" data-q="When does BART run from MacArthur?">BART times</button>
+        <button type="button" data-q="Where should I eat nearby?">Eats nearby</button>
+        <button type="button" data-q="How does street parking and permits work in 94609?">Parking</button>
+        <button type="button" data-q="What amenities does the building have?">Building</button>
+      </div>
+      <form class="wizard-input" id="wizard-form">
+        <input id="wizard-text" placeholder="Ask about the building, the block…" autocomplete="off" />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+
+    <script>
+      // Wizard of Mosswood — Gemini via /api/wizard, scripted lore on static hosting
+      const wizFab = document.getElementById('wizard-fab');
+      const wizPanel = document.getElementById('wizard-panel');
+      const wizLog = document.getElementById('wizard-log');
+      const wizForm = document.getElementById('wizard-form');
+      const wizText = document.getElementById('wizard-text');
+      const wizHistory = [];
+      const buf = new Uint8Array(6);
+      crypto.getRandomValues(buf);
+      const wizSession = 'wiz-' + Array.from(buf, x => x.toString(16).padStart(2, '0')).join('') + '-' + Date.now().toString(36);
+
+      wizFab.addEventListener('click', () => { wizPanel.classList.toggle('open'); wizText.focus(); });
+      document.getElementById('wizard-close').addEventListener('click', () => wizPanel.classList.remove('open'));
+      document.getElementById('wizard-chips').addEventListener('click', (e) => {
+        const q = e.target.dataset && e.target.dataset.q;
+        if (q) { wizText.value = q; wizForm.requestSubmit(); }
+      });
+
+      // Render text with bare URLs as safe anchor elements (no HTML injection)
+      function wizRender(div, text) {
+        div.replaceChildren();
+        const parts = String(text).split(/(https?:\/\/[^\s)]+)/g);
+        for (const part of parts) {
+          if (/^https?:\/\//.test(part)) {
+            const a = document.createElement('a');
+            a.href = part; a.target = '_blank'; a.rel = 'noopener';
+            a.textContent = part.replace(/^https?:\/\/(www\.)?/, '').split('/')[0];
+            div.appendChild(a);
+          } else {
+            div.appendChild(document.createTextNode(part));
+          }
+        }
+      }
+      function wizSay(text, who) {
+        const div = document.createElement('div');
+        div.className = 'wizard-msg ' + who;
+        wizRender(div, text);
+        wizLog.appendChild(div);
+        wizLog.scrollTop = wizLog.scrollHeight;
+        return div;
+      }
+
+      function wizLore(q) {
+        const s = q.toLowerCase();
+        if (/(price|rent|cost|available|vacan|how much)/.test(s))
+          return "Availability shifts like the fog, friend. Join the waiting list below, or call or text (415) 900-8563 and the keepers will tell you what's open.";
+        if (/(bart|train|schedule|commute)/.test(s))
+          return "MacArthur BART is about 10 minutes on foot. Station lore: https://www.bart.gov/stations/mcar — live schedules: https://www.bart.gov/schedules";
+        if (/(ticket|concert|show|event|theater|theatre|fox|paramount)/.test(s))
+          return "The Fox Theater and Paramount Theatre glow just down Telegraph and Broadway. Summon tickets here: https://www.ticketmaster.com/discover/concerts/oakland";
+        if (/(eat|restaurant|food|dinner|lunch|coffee|cafe|brunch)/.test(s))
+          return "Within two miles: Temescal's tables on Telegraph, Piedmont Ave's cafés, and KONO's kitchens. Behold the map: https://www.google.com/maps/search/restaurants+near+3875+Ruby+St+Oakland";
+        if (/(shop|store|grocery|target|trader|mall)/.test(s))
+          return "Target, Trader Joe's, and Chick-fil-A are ~10 minutes by car or bus; Piedmont Ave boutiques and Bay Street Emeryville close behind. Map: https://www.google.com/maps/search/shopping+near+3875+Ruby+St+Oakland";
+        if (/(permit|street parking|parking rule|rpp|sweep)/.test(s))
+          return "The building keeps gated garage parking. Street parking in 94609 follows Oakland's residential permit rules — permits here: https://www.oaklandca.gov/services/apply-for-a-residential-parking-permit";
+        if (/(walk|transit|score|bus)/.test(s))
+          return "Walk Score 94, Transit Score 88. Kaiser, Mosswood Park, and MacArthur BART are about 10 minutes on foot; Target, Trader Joe's, and Chick-fil-A about 10 by car or bus.";
+        if (/(amenit|laundry|parking|garage|package|mail|camera|secur|building)/.test(s))
+          return "Within these 1924 walls: a secure package & mail room, 24/7 AI security cameras, gated garage parking, and an online tenant portal.";
+        if (/(waitlist|wait list|apply|tour|visit|see|viewing)/.test(s))
+          return "The waiting list form is just below — leave your name and the keepers will summon you when a door opens.";
+        if (/(contact|phone|call|email|text|reach)/.test(s))
+          return "Call or text (415) 900-8563, or write to hello@rent-ruby.com. Both paths are answered swiftly.";
+        if (/(maintenance|repair|broken|leak|tenant)/.test(s))
+          return "Dwellers of the Ruby: use the tenant portal for maintenance, or call (415) 900-8563 if it cannot wait.";
+        if (/(neighborhood|mosswood|oakland|park|area|around)/.test(s))
+          return "Mosswood is my domain — the park across the way, Piedmont Ave cafés, Temescal tables, and BART to whisk you anywhere. Few blocks in Oakland walk this well.";
+        return "I speak only of the Ruby Building and its realm — BART, eats, shopping, parking, amenities, the waiting list. For all else, call (415) 900-8563 or email hello@rent-ruby.com.";
+      }
+
+      wizForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const q = wizText.value.trim();
+        if (!q) return;
+        wizText.value = '';
+        wizSay(q, 'user');
+        wizHistory.push({ role: 'user', text: q });
+        const pending = wizSay('…', 'bot');
+        let reply = null;
+        try {
+          const res = await fetch('/api/wizard', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: wizHistory, sessionId: wizSession }),
+          });
+          if (res.ok) reply = (await res.json()).reply;
+        } catch {}
+        if (!reply) reply = wizLore(q);
+        wizRender(pending, reply);
+        wizHistory.push({ role: 'model', text: reply });
+        wizLog.scrollTop = wizLog.scrollHeight;
+      });
+
+      const form = document.getElementById('waitlist-form');
+      const status = document.getElementById('wl-status');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(form).entries());
+        status.style.display = 'block';
+        try {
+          const res = await fetch('/api/waitlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          });
+          if (!res.ok) throw new Error('bad status');
+          status.textContent = "You're on the list — we'll be in touch.";
+          form.reset();
+        } catch {
+          // Static hosting (no API): fall back to a pre-filled email
+          const body = encodeURIComponent(
+            `Waiting list request\n\nName: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.email}\nMove-in: ${data.desired_move_in || 'flexible'}\nUnit: ${data.unit_pref || 'no preference'}\nNotes: ${data.notes || ''}`
+          );
+          window.location.href = `mailto:hello@rent-ruby.com?subject=Waiting%20List%20-%20${encodeURIComponent(data.name)}&body=${body}`;
+          status.textContent = 'Opening your email app to finish signup…';
+        }
+      });
+    </script>
+  </body>
+</html>

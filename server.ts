@@ -315,6 +315,25 @@ db.exec(`
     accessed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (document_id) REFERENCES legal_library_2026(id)
   );
+
+  CREATE TABLE IF NOT EXISTS wizard_chats (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT NOT NULL,
+    role TEXT NOT NULL,
+    text TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS waitlist_signups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    email TEXT NOT NULL,
+    desired_move_in TEXT,
+    unit_pref TEXT,
+    notes TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
 `);
 
 // Migration: Add neighborhood column if it doesn't exist
@@ -1058,6 +1077,120 @@ async function startServer() {
       WHERE id = ?
     `).run(status, notes, req.params.id);
     res.json({ status: "ok" });
+  });
+
+  const WIZARD_SYSTEM_PROMPT = `You are the Wizard of Mosswood, the friendly AI concierge for the Ruby Building at 3875 Ruby St, Oakland, CA 94609 (Mosswood neighborhood). Speak warmly and concisely, with a light touch of neighborhood-sage charm — helpful first, whimsical second.
+
+Building facts (do not invent others):
+- Historic 1924 building, 27 units, studios to 3 bedrooms.
+- Walk Score 94, Transit Score 88.
+- About 10 minutes on foot: Kaiser Permanente, Mosswood Park, MacArthur BART.
+- About 10 minutes by car or bus: Target, Trader Joe's, Chick-fil-A.
+- Building: secure package & mail room, 24/7 AI security cameras, gated garage parking, online tenant portal.
+- Contact: call/text (415) 900-8563, email hello@rent-ruby.com.
+
+Concierge knowledge — share these links when relevant:
+- MacArthur BART: station info https://www.bart.gov/stations/mcar · schedules https://www.bart.gov/schedules
+- Events & tickets: Fox Theater and Paramount Theatre are minutes away — https://www.ticketmaster.com/discover/concerts/oakland
+- Restaurants within ~2 miles: Temescal (Telegraph Ave), Piedmont Ave, and KONO — https://www.google.com/maps/search/restaurants+near+3875+Ruby+St+Oakland
+- Shopping: Target and Trader Joe's ~10 min by car or bus, Piedmont Ave boutiques, Bay Street Emeryville — https://www.google.com/maps/search/shopping+near+3875+Ruby+St+Oakland
+- Parking: the building has gated garage parking; street parking in 94609 follows Oakland residential permit parking rules — https://www.oaklandca.gov/services/apply-for-a-residential-parking-permit
+
+Scope: ONLY the Ruby Building and these neighborhood concierge topics. Politely decline anything else. Never quote prices or promise availability — direct people to the waiting list form on this page or to call/text. Keep replies under 80 words. For maintenance or current-tenant issues, point to the tenant portal or the phone number.`;
+
+  const CONTACT_INFO_RE = /(\b[\w.+-]+@[\w-]+\.[\w.]+\b)|(\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4})/;
+
+  async function notifyKeeper(subject: string, body: string) {
+    const gchatWebhook = process.env.GOOGLE_CHAT_WEBHOOK;
+    if (gchatWebhook) {
+      try {
+        await fetch(gchatWebhook, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: `*${subject}*\n${body}` }),
+        });
+      } catch (e) {}
+    }
+    const resendKey = process.env.RESEND_API_KEY;
+    const alertEmail = process.env.WIZARD_ALERT_EMAIL || "admin@mobilecarbsmoketest.com";
+    if (resendKey) {
+      try {
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${resendKey}` },
+          body: JSON.stringify({
+            from: "Wizard of Mosswood <wizard@rent-ruby.com>",
+            to: [alertEmail],
+            subject,
+            text: body,
+          }),
+        });
+      } catch (e) {}
+    }
+  }
+
+  app.post("/api/wizard", async (req, res) => {
+    const { messages, sessionId } = req.body;
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: "messages array is required" });
+    }
+    const session = String(sessionId || "anon").slice(0, 64);
+    const latest = messages[messages.length - 1];
+    const latestText = String(latest?.text || "").slice(0, 2000);
+    const isFirstMessage = !db.prepare("SELECT 1 FROM wizard_chats WHERE session_id = ? LIMIT 1").get(session);
+    db.prepare("INSERT INTO wizard_chats (session_id, role, text) VALUES (?, 'user', ?)").run(session, latestText);
+    if (isFirstMessage) {
+      notifyKeeper("New Wizard of Mosswood chat", `Session ${session}\nFirst question: ${latestText}`);
+    } else if (CONTACT_INFO_RE.test(latestText)) {
+      notifyKeeper("Wizard chat left contact info", `Session ${session}\nMessage: ${latestText}`);
+    }
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey || apiKey === "MY_GEMINI_API_KEY") {
+      return res.json({ reply: null, fallback: true });
+    }
+    try {
+      const { GoogleGenAI } = await import("@google/genai");
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        config: { systemInstruction: WIZARD_SYSTEM_PROMPT, maxOutputTokens: 400 },
+        contents: messages.slice(-12).map((m: { role?: string; text?: string }) => ({
+          role: m.role === "model" ? "model" : "user",
+          parts: [{ text: String(m.text || "").slice(0, 2000) }],
+        })),
+      });
+      const reply = response.text || "";
+      db.prepare("INSERT INTO wizard_chats (session_id, role, text) VALUES (?, 'model', ?)").run(session, reply.slice(0, 4000));
+      res.json({ reply });
+    } catch (e) {
+      res.json({ reply: null, fallback: true });
+    }
+  });
+
+  app.get("/api/wizard/chats", (req, res) => {
+    const rows = db.prepare("SELECT * FROM wizard_chats ORDER BY created_at DESC LIMIT 500").all();
+    res.json(rows);
+  });
+
+  app.get("/api/waitlist", (req, res) => {
+    const rows = db.prepare("SELECT * FROM waitlist_signups ORDER BY created_at DESC").all();
+    res.json(rows);
+  });
+
+  app.post("/api/waitlist", (req, res) => {
+    const { name, phone, email, desired_move_in, unit_pref, notes } = req.body;
+    if (!name || !phone || !email) {
+      return res.status(400).json({ error: "name, phone, and email are required" });
+    }
+    const result = db.prepare(`
+      INSERT INTO waitlist_signups (name, phone, email, desired_move_in, unit_pref, notes)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(name, phone, email, desired_move_in || null, unit_pref || null, notes || null);
+    notifyKeeper(
+      "New Ruby waiting list signup",
+      `Name: ${name}\nPhone: ${phone}\nEmail: ${email}\nMove-in: ${desired_move_in || "flexible"}\nUnit: ${unit_pref || "no preference"}\nNotes: ${notes || ""}`
+    );
+    res.json({ id: result.lastInsertRowid });
   });
 
   app.get("/api/me", (req, res) => {

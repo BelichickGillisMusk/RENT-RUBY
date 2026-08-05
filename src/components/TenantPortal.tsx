@@ -22,6 +22,7 @@ import {
   Cpu,
   ShieldAlert,
   FileWarning,
+  FileText,
   Gavel,
   Wrench,
   LayoutGrid,
@@ -125,11 +126,20 @@ const demoConstructionUpdates: ConstructionUpdate[] = [
 const demoNotices: TenantNotice[] = [
   {
     id: 1,
-    title: 'Building Rules 2026',
-    content: 'Your updated building rules, trash schedule, and guest policy are available in the Info Nook.',
+    title: 'Month-to-Month Lease Packet Ready',
+    content: 'Unit 105 month-to-month lease packet is ready with Oakland 94609 disclosures, Notice to Enter rules, construction notice workflow, and tenant acknowledgment timestamps.',
     status: 'Viewed',
     sent_at: '2026-06-17T09:00:00.000Z',
     viewed_at: '2026-06-17T09:08:00.000Z',
+  },
+  {
+    id: 2,
+    title: '94609 Tenant Code Checklist',
+    content: 'Legal safeguards cross-check: rent notices, entry notices, lease updates, construction notifications, and sublease acknowledgments are tracked for Unit 105.',
+    status: 'Acknowledged',
+    sent_at: '2026-06-18T11:20:00.000Z',
+    viewed_at: '2026-06-18T11:24:00.000Z',
+    acknowledged_at: '2026-06-18T11:25:00.000Z',
   },
 ];
 
@@ -186,8 +196,8 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
 
   const [rentStatus, setRentStatus] = useState<{ amount: number, last_payment: string, status: string } | null>(null);
   const [mailboxCustomizations, setMailboxCustomizations] = useState<Record<string, { color: string }>>({});
-  const [selectedMailbox, setSelectedMailbox] = useState<string | null>(null);
-  const [currentUserUnit, setCurrentUserUnit] = useState<string>('101'); // Mocked for demo
+  const [selectedMailbox, setSelectedMailbox] = useState<string | null>(demoMode ? '105' : null);
+  const [currentUserUnit, setCurrentUserUnit] = useState<string>('105'); // Mocked for demo
 
   const units = [
     '101', '102', '103', '104', '105', '106',
@@ -230,10 +240,11 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
       setMailboxCustomizations({
         '101': { color: '#FF5F1F' },
         '104': { color: '#0077BE' },
+        '105': { color: '#E24F9A' },
         '203': { color: '#FFD700' },
         '302': { color: '#9B111E' },
       });
-      setCurrentUserUnit('101');
+      setCurrentUserUnit('105');
       return;
     }
 
@@ -660,14 +671,14 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
                     <Smartphone className="w-5 h-5 text-app-accent" />
                   </div>
                   <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Management</div>
-                  <div className="text-sm font-black text-white">(510) 555-0199</div>
+                  <div className="text-sm font-black text-white">415-900-8563</div>
                 </div>
                 <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center text-center hover:bg-white/10 transition-all cursor-pointer">
                   <div className="w-10 h-10 rounded-full bg-app-accent/20 flex items-center justify-center mb-3">
                     <Mail className="w-5 h-5 text-app-accent" />
                   </div>
                   <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Email Us</div>
-                  <div className="text-sm font-black text-white">hello@3875ruby.com</div>
+                  <div className="text-sm font-black text-white">hello@rent-ruby</div>
                 </div>
                 <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center text-center hover:bg-white/10 transition-all cursor-pointer">
                   <div className="w-10 h-10 rounded-full bg-app-accent/20 flex items-center justify-center mb-3">
@@ -707,9 +718,12 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {[
-                        { id: 'dashboard', label: 'Balance', icon: CreditCard, color: 'bg-ruby/10 text-ruby' },
-                        { id: 'maintenance', label: 'Maintenance', icon: Wrench, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
-                        { id: 'dashboard', label: 'Notices', icon: Bell, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
+                        { id: 'dashboard', label: 'Rent', icon: CreditCard, color: 'bg-ruby/10 text-ruby' },
+                        { id: 'maintenance', label: 'Maint.', icon: Wrench, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
+                        { id: 'dashboard', label: 'Month-to-Month Lease', icon: FileText, color: 'bg-[#169B62]/10 text-[#169B62]' },
+                        { id: 'dashboard', label: 'Notice to Enter', icon: Bell, color: 'bg-[#FD5A1E]/10 text-[#FD5A1E]' },
+                        { id: 'dashboard', label: 'Lease Updates', icon: FileWarning, color: 'bg-[#72CDF7]/10 text-[#72CDF7]' },
+                        { id: 'dashboard', label: 'Construction', icon: Camera, color: 'bg-[#E24F9A]/10 text-[#E24F9A]' },
                       ].map((link) => (
                         <button
                           key={link.label}
@@ -795,7 +809,7 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
                 </div>
                 <div className="p-6 rounded-3xl bg-ruby/5 border border-ruby/10 text-right">
                   <div className="text-[10px] font-black text-ruby uppercase tracking-widest mb-1">Emergency 24/7</div>
-                  <div className="text-2xl font-black text-app-text">(510) 555-9111</div>
+                  <div className="text-2xl font-black text-app-text">415-900-8563</div>
                 </div>
               </div>
 
@@ -822,8 +836,8 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
                     <p className="text-sm text-app-text/60 leading-relaxed">
                       Prefer email? Send your concerns directly to our management team.
                     </p>
-                    <a href="mailto:mezfin@3875ruby.com" className="block w-full py-3 border border-ruby/20 text-ruby text-center rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-ruby/5 transition-all">
-                      mezfin@3875ruby.com
+                    <a href="mailto:hello@rent-ruby" className="block w-full py-3 border border-ruby/20 text-ruby text-center rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-ruby/5 transition-all">
+                      hello@rent-ruby
                     </a>
                   </div>
                 </div>
