@@ -13,6 +13,8 @@ import {
   Users,
   Zap,
 } from 'lucide-react';
+import { ComplianceLegend, ComplianceLight } from './ComplianceLight';
+import type { ComplianceLevel, ComplianceStatus } from '../lib/tenantCompliance';
 import {
   Bar,
   BarChart,
@@ -25,11 +27,32 @@ import {
 } from 'recharts';
 
 const rentRollSnapshot = [
-  { unit: '101', resident: 'Tenant A.', rent: '$2,450', status: 'Paid', lease: 'Renewal Ready', risk: 'Low' },
-  { unit: '104', resident: 'Tenant M.', rent: '$2,725', status: 'Paid', lease: '12 mo left', risk: 'Low' },
-  { unit: '203', resident: 'Tenant K.', rent: '$2,300', status: 'Watch', lease: '90 days', risk: 'Medium' },
-  { unit: '302', resident: 'Vacant', rent: '$2,950', status: 'Listed', lease: 'Open', risk: 'Market' },
+  { unit: '105', resident: 'McDuff Gillis', rent: '$2,450', status: 'Paid', lease: 'Signature open', risk: 'Watch', compliance: 'orange' as const, note: '2026 lease packet awaiting signed copy.' },
+  { unit: '101', resident: 'Tenant A.', rent: '$2,450', status: 'Paid', lease: 'Current', risk: 'Low', compliance: 'green' as const, note: 'Paperwork and rent file are current.' },
+  { unit: '104', resident: 'Tenant M.', rent: '$2,725', status: 'Paid', lease: '12 mo left', risk: 'Low', compliance: 'green' as const, note: 'Notices acknowledged; deposit matched.' },
+  { unit: '203', resident: 'Tenant K.', rent: '$2,300', status: 'Watch', lease: '62 days past due', risk: 'High', compliance: 'red' as const, note: 'Rent 62 days past due · possible unauthorized subletter.' },
+  { unit: '302', resident: 'Vacant', rent: '$2,950', status: 'Listed', lease: 'Open', risk: 'Market', compliance: 'none' as const, note: 'No resident file to track.' },
 ];
+
+const showcaseComplianceStatus = (
+  level: ComplianceLevel,
+  reason: string,
+): ComplianceStatus => {
+  switch (level) {
+    case 'green':
+      return { level, label: 'Paperwork current', reason };
+    case 'orange':
+      return { level, label: 'Waiting on signature', reason };
+    case 'red':
+      return { level, label: 'Action needed', reason };
+    case 'none':
+      return { level, label: 'Vacant', reason };
+    default: {
+      const exhaustive: never = level;
+      return exhaustive;
+    }
+  }
+};
 
 const filterStack = [
   'Chase deposit sync',
@@ -69,13 +92,13 @@ const notificationFeed = [
   {
     source: 'GM',
     title: 'GM · 3875 Ruby',
-    detail: 'Chase deposit downloaded and matched to Unit 105 rent.',
+    detail: 'Chase deposit downloaded and matched to McDuff Gillis, Unit 105 rent.',
     badge: 'Matched',
     color: 'bg-[#169B62]',
   },
   {
     source: '105',
-    title: 'Tenant 105 direct',
+    title: 'McDuff 105 direct',
     detail: 'Maintenance note received; timestamped and routed to GM queue.',
     badge: 'Tenant',
     color: 'bg-[#FF883E]',
@@ -133,8 +156,10 @@ export const OwnerShowcaseSnapshot = () => {
                 <h3 className="text-2xl font-black text-app-text">Intelligent Rent Roll</h3>
                 <p className="text-xs font-bold text-app-text/45 mt-2 max-w-xl">
                   Updates when Chase deposits download, matches payments to units,
-                  flags exceptions, and stores deposit evidence offsite.
+                  flags exceptions, and stores deposit evidence offsite. Internal
+                  file lights stay on the staff side only.
                 </p>
+                <ComplianceLegend compact />
               </div>
               <div className="flex gap-2 flex-wrap">
                 <div className="px-3 py-2 rounded-full bg-app-text/5 text-[10px] font-black uppercase tracking-widest text-app-text/60 flex items-center gap-2">
@@ -171,7 +196,7 @@ export const OwnerShowcaseSnapshot = () => {
                     <th>Rent</th>
                     <th>Status</th>
                     <th>Lease</th>
-                    <th>Risk</th>
+                    <th>Staff light</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-app-border">
@@ -192,7 +217,13 @@ export const OwnerShowcaseSnapshot = () => {
                         </span>
                       </td>
                       <td className="text-app-text/55">{row.lease}</td>
-                      <td>{row.risk}</td>
+                      <td className="py-4 pr-2">
+                        <ComplianceLight
+                          status={showcaseComplianceStatus(row.compliance, row.note)}
+                          size="sm"
+                          showReason={false}
+                        />
+                      </td>
                     </tr>
                   ))}
                 </tbody>

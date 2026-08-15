@@ -67,6 +67,9 @@ import { MaintenanceFlow } from './components/MaintenanceFlow';
 import { OwnerPresentation } from './components/OwnerPresentation';
 import { NeighborhoodRadiusMap } from './components/NeighborhoodRadiusMap';
 import { OwnerShowcaseSnapshot } from './components/OwnerShowcaseSnapshot';
+import { ComplianceLegend, ComplianceLight } from './components/ComplianceLight';
+import { DEMO_TENANT, isTenantDemoHost } from './lib/demoTenant';
+import { deriveComplianceStatus } from './lib/tenantCompliance';
 
 // Revamped Components
 import { HeroSection } from './components/HeroSection';
@@ -99,12 +102,26 @@ const getInitialView = (): AppView => {
     return requestedView;
   }
 
+  if (isTenantDemoHost()) {
+    return 'tenant';
+  }
+
   return 'hub';
 };
+
+const mcduffInternalCompliance = deriveComplianceStatus({
+  vacant: false,
+  balanceDue: 0,
+  daysPastDue: 0,
+  pendingSignature: true,
+  unsignedNotices: false,
+  subletRisk: false,
+});
 
 export default function App() {
   const { theme } = useTheme();
   const isStaticShowcase = (import.meta as any).env?.VITE_STATIC_SHOWCASE === 'true';
+  const tenantDemoHost = isTenantDemoHost();
   const [view, setView] = useState<AppView>(getInitialView);
   const [adminTab, setAdminTab] = useState<AdminTab>('portfolio');
   const [rentRollUnlocked, setRentRollUnlocked] = useState(false);
@@ -495,17 +512,42 @@ export default function App() {
             className="pt-24 px-6 pb-20 max-w-7xl mx-auto"
           >
             <div className="mb-12">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-2xl bg-app-accent flex items-center justify-center text-white">
-                  <Sparkles className="w-6 h-6" />
+              <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-app-accent flex items-center justify-center text-white">
+                    <Sparkles className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h1 className="text-4xl font-black text-app-text uppercase tracking-tighter">Tenant <span className="text-app-accent italic">Lounge</span>.</h1>
+                    <p className="text-app-text/40 text-[10px] font-bold uppercase tracking-[0.2em]">
+                      Welcome back, {DEMO_TENANT.firstName}. Unit {DEMO_TENANT.unit} · 3875 Ruby Street.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="text-4xl font-black text-app-text uppercase tracking-tighter">Tenant <span className="text-app-accent italic">Lounge</span>.</h1>
-                  <p className="text-app-text/40 text-[10px] font-bold uppercase tracking-[0.2em]">Welcome back to the Ruby Soul.</p>
-                </div>
+                {(tenantDemoHost || isStaticShowcase) && (
+                  <div className="px-3 py-1 rounded-sm bg-app-text/5 border border-app-border text-[9px] font-black uppercase tracking-[0.22em] text-app-text/45">
+                    Tenant demo · not live
+                  </div>
+                )}
               </div>
+              {(tenantDemoHost || isStaticShowcase) && (
+                <div className="p-5 rounded-[1.75rem] bg-white/70 backdrop-blur-md border border-app-border">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <div className="text-[9px] font-black uppercase tracking-[0.28em] text-app-text/35 mb-1">
+                        Internal staff only · not shown to resident
+                      </div>
+                      <div className="text-sm font-black text-app-text tracking-tight">
+                        {DEMO_TENANT.name} · Unit {DEMO_TENANT.unit} file light
+                      </div>
+                    </div>
+                    <ComplianceLight status={mcduffInternalCompliance} />
+                  </div>
+                  <ComplianceLegend compact />
+                </div>
+              )}
             </div>
-            <TenantPortal demoMode={isStaticShowcase} initialTab="mailbox" />
+            <TenantPortal demoMode={isStaticShowcase || tenantDemoHost} initialTab="mailbox" />
           </motion.div>
         )}
       </AnimatePresence>

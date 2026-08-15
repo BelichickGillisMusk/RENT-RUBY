@@ -38,6 +38,7 @@ import { LeaseUpdateWalkthrough } from './LeaseUpdateWalkthrough';
 import { db, auth, googleProvider } from '../firebase';
 import { doc, getDoc, setDoc, onSnapshot, collection } from 'firebase/firestore';
 import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import { DEMO_TENANT } from '../lib/demoTenant';
 
 interface UserSettings {
   preferred_notification_time: string;
@@ -127,7 +128,7 @@ const demoNotices: TenantNotice[] = [
   {
     id: 1,
     title: 'Month-to-Month Lease Packet Ready',
-    content: 'Unit 105 month-to-month lease packet is ready with Oakland 94609 disclosures, Notice to Enter rules, construction notice workflow, and tenant acknowledgment timestamps.',
+    content: `Unit ${DEMO_TENANT.unit} month-to-month lease packet for ${DEMO_TENANT.name} is ready with Oakland 94609 disclosures, Notice to Enter rules, construction notice workflow, and tenant acknowledgment timestamps.`,
     status: 'Viewed',
     sent_at: '2026-06-17T09:00:00.000Z',
     viewed_at: '2026-06-17T09:08:00.000Z',
@@ -135,7 +136,7 @@ const demoNotices: TenantNotice[] = [
   {
     id: 2,
     title: '94609 Tenant Code Checklist',
-    content: 'Legal safeguards cross-check: rent notices, entry notices, lease updates, construction notifications, and sublease acknowledgments are tracked for Unit 105.',
+    content: `Legal safeguards cross-check: rent notices, entry notices, lease updates, construction notifications, and sublease acknowledgments are tracked for ${DEMO_TENANT.name}, Unit ${DEMO_TENANT.unit}.`,
     status: 'Acknowledged',
     sent_at: '2026-06-18T11:20:00.000Z',
     viewed_at: '2026-06-18T11:24:00.000Z',
@@ -196,8 +197,8 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
 
   const [rentStatus, setRentStatus] = useState<{ amount: number, last_payment: string, status: string } | null>(null);
   const [mailboxCustomizations, setMailboxCustomizations] = useState<Record<string, { color: string }>>({});
-  const [selectedMailbox, setSelectedMailbox] = useState<string | null>(demoMode ? '105' : null);
-  const [currentUserUnit, setCurrentUserUnit] = useState<string>('105'); // Mocked for demo
+  const [selectedMailbox, setSelectedMailbox] = useState<string | null>(demoMode ? DEMO_TENANT.unit : null);
+  const [currentUserUnit, setCurrentUserUnit] = useState<string>(DEMO_TENANT.unit);
 
   const units = [
     '101', '102', '103', '104', '105', '106',
@@ -229,22 +230,22 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
       setLeaseUpdate({
         id: 1,
         year: 2026,
-        status: 'Ready for Review',
-        walkthrough_completed: 1,
+        status: 'Pending',
+        walkthrough_completed: 0,
       });
       setRentStatus({
-        amount: 2450,
-        last_payment: '2026-06-01',
+        amount: DEMO_TENANT.rent,
+        last_payment: DEMO_TENANT.lastPayment,
         status: 'Paid',
       });
       setMailboxCustomizations({
         '101': { color: '#FF5F1F' },
         '104': { color: '#0077BE' },
-        '105': { color: '#E24F9A' },
+        [DEMO_TENANT.unit]: { color: '#E24F9A' },
         '203': { color: '#FFD700' },
         '302': { color: '#9B111E' },
       });
-      setCurrentUserUnit('105');
+      setCurrentUserUnit(DEMO_TENANT.unit);
       return;
     }
 
@@ -253,7 +254,7 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
       if (user) {
         // Set unit based on email for trial focus
         if (user.email === 'fsu9913@gmail.com') {
-          setCurrentUserUnit('105');
+          setCurrentUserUnit(DEMO_TENANT.unit);
         } else {
           setCurrentUserUnit('101');
         }
@@ -650,7 +651,7 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
                               <div className="px-3 py-1 bg-ruby text-white text-[8px] font-bold rounded-full whitespace-nowrap animate-bounce shadow-lg">
                                 HOME PLATE
                               </div>
-                              {unit === '105' && (
+                              {unit === DEMO_TENANT.unit && (
                                 <div className="px-2 py-0.5 bg-app-accent text-white text-[6px] font-black rounded-full uppercase tracking-widest shadow-sm">
                                   Trial Focus
                                 </div>
@@ -708,7 +709,9 @@ export const TenantPortal = ({ initialTab = 'mailbox', demoMode = false }: Tenan
                         </div>
                         <div>
                           <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Unit {selectedMailbox} Portal</h3>
-                          <p className="text-[10px] font-bold text-[#FD5A1E] uppercase tracking-widest">Secure Stadium Access</p>
+                          <p className="text-[10px] font-bold text-[#FD5A1E] uppercase tracking-widest">
+                            {selectedMailbox === DEMO_TENANT.unit ? `${DEMO_TENANT.name} · Secure Stadium Access` : 'Secure Stadium Access'}
+                          </p>
                         </div>
                       </div>
                       <button onClick={() => setSelectedMailbox(null)} className="p-3 hover:bg-white/5 rounded-full transition-colors">

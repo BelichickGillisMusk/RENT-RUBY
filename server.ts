@@ -483,7 +483,7 @@ if (propertyCount.count === 0) {
 
   // Seed Bank Transactions
   const insertBankTx = db.prepare("INSERT INTO bank_transactions (transaction_date, description, amount, status) VALUES (?, ?, ?, ?)");
-  insertBankTx.run("2024-03-01", "CHASE DIRECT DEP - JORDAN SMITH", 2450.00, "Unmatched");
+  insertBankTx.run("2024-03-01", "CHASE DIRECT DEP - MCDUFF GILLIS", 2450.00, "Unmatched");
   insertBankTx.run("2024-03-02", "CHASE DIRECT DEP - ALEX JOHNSON", 1950.00, "Unmatched");
   insertBankTx.run("2024-03-03", "CHASE DIRECT DEP - UNIT 102", 2100.00, "Unmatched");
 
@@ -516,6 +516,67 @@ if (propertyCount.count === 0) {
   // Seed initial lease update for tenant 1
   db.prepare("INSERT INTO lease_updates (tenant_id, year, status) VALUES (?, ?, ?)").run(1, 2026, 'Pending');
 
+  const pinRubyUnit = (unitNumber: string) =>
+    db.prepare(`
+      SELECT u.id as unit_id, t.id as tenant_id
+      FROM units u
+      LEFT JOIN tenants t ON t.unit_id = u.id
+      WHERE u.property_id = ? AND u.unit_number = ?
+    `).get(rubyId, unitNumber) as { unit_id: number; tenant_id: number | null } | undefined;
+
+  const unit105 = pinRubyUnit("105");
+  if (unit105?.unit_id) {
+    db.prepare("UPDATE units SET rent_amount = 2450, status = 'Occupied' WHERE id = ?").run(unit105.unit_id);
+    let mcduffId = unit105.tenant_id;
+    if (mcduffId) {
+      db.prepare("UPDATE tenants SET name = ?, email = ?, balance_due = 0, lease_start = ?, lease_end = ? WHERE id = ?")
+        .run("McDuff Gillis", "mcduff.gillis@rent-ruby.com", "2024-08-01", "2027-08-01", mcduffId);
+    } else {
+      mcduffId = Number(insertTenant.run(
+        unit105.unit_id,
+        "McDuff Gillis",
+        "mcduff.gillis@rent-ruby.com",
+        "2024-08-01",
+        "2027-08-01",
+        0,
+        new Date().toISOString(),
+        "127.0.0.1"
+      ).lastInsertRowid);
+    }
+    insertPayment.run(unit105.unit_id, 2450, "2026-08-01", "Paid");
+    db.prepare("INSERT INTO lease_updates (tenant_id, year, status) VALUES (?, ?, ?)").run(mcduffId, 2026, "Pending");
+    insertNotice.run(
+      mcduffId,
+      "Month-to-Month Lease Packet Ready",
+      "Unit 105 month-to-month lease packet for McDuff Gillis is ready with Oakland 94609 disclosures and tenant acknowledgment timestamps.",
+      "Viewed",
+      new Date().toISOString(),
+      "127.0.0.1"
+    );
+  }
+
+  const unit203 = pinRubyUnit("203");
+  if (unit203?.unit_id) {
+    db.prepare("UPDATE units SET rent_amount = 2300, status = 'Occupied' WHERE id = ?").run(unit203.unit_id);
+    let tenant203Id = unit203.tenant_id;
+    if (tenant203Id) {
+      db.prepare("UPDATE tenants SET balance_due = 4600 WHERE id = ?").run(tenant203Id);
+    } else {
+      tenant203Id = Number(insertTenant.run(
+        unit203.unit_id,
+        "Tenant 203",
+        "tenant.203@example.com",
+        "2024-01-01",
+        "2026-12-01",
+        4600,
+        new Date().toISOString(),
+        "127.0.0.1"
+      ).lastInsertRowid);
+    }
+    insertPayment.run(unit203.unit_id, 2300, "2026-05-12", "Paid");
+    insertViolation.run(tenant203Id, "Unauthorized Occupant", "Unauthorized guest pattern / possible subletter", "2026-07-20", "Logged");
+  }
+
   // Seed Vendors
   const insertVendor = db.prepare("INSERT INTO vendors (name, service_type, contact_person, email, phone, insurance_expiry_date) VALUES (?, ?, ?, ?, ?, ?)");
   insertVendor.run("Oakland Plumbing Pros", "Plumbing", "Mike Ross", "mike@oaklandplumbing.com", "(510) 555-0987", "2026-12-31");
@@ -523,6 +584,21 @@ if (propertyCount.count === 0) {
   insertVendor.run("Green Clean Oakland", "Cleaning", "Maria Garcia", "maria@greenclean.com", "(510) 555-4567", "2027-01-20");
   insertVendor.run("Ruby Security Systems", "Security", "David Kim", "david@rubysecurity.com", "(510) 555-7890", "2026-09-30");
 }
+
+try {
+  db.prepare(`
+    UPDATE tenants
+    SET name = 'McDuff Gillis',
+        email = 'mcduff.gillis@rent-ruby.com'
+    WHERE unit_id IN (SELECT id FROM units WHERE unit_number = '105')
+      AND (name LIKE 'Tenant 105%' OR name LIKE 'Jordan%' OR name != 'McDuff Gillis')
+  `).run();
+  db.prepare(`
+    UPDATE bank_transactions
+    SET description = 'CHASE DIRECT DEP - MCDUFF GILLIS'
+    WHERE description LIKE '%JORDAN SMITH%'
+  `).run();
+} catch (e) {}
 
 const legalLibraryCount = db.prepare("SELECT COUNT(*) as count FROM legal_library_2026").get() as { count: number };
 if (legalLibraryCount.count === 0) {
@@ -616,7 +692,25 @@ async function startServer() {
         t.last_login_ip,
         prop.neighborhood,
         p.payment_date as last_payment_date,
-        p.status as last_payment_status
+        p.status as last_payment_status,
+        COALESCE((
+          SELECT COUNT(*) FROM lease_updates lu
+          WHERE lu.tenant_id = t.id AND lu.status IN ('Pending', 'In Progress', 'Ready for Review')
+        ), 0) as pending_lease_docs,
+        COALESCE((
+          SELECT COUNT(*) FROM tenant_notices tn
+          WHERE tn.tenant_id = t.id AND tn.status != 'Acknowledged'
+        ), 0) as unsigned_notices,
+        COALESCE((
+          SELECT COUNT(*) FROM lease_violations lv
+          WHERE lv.tenant_id = t.id
+            AND lv.status != 'Resolved'
+            AND (
+              lv.violation_type = 'Unauthorized Occupant'
+              OR lv.description LIKE '%Unauthorized%'
+              OR lower(lv.description) LIKE '%subleas%'
+            )
+        ), 0) as sublet_flags
       FROM units u
       LEFT JOIN tenants t ON u.id = t.unit_id
       LEFT JOIN properties prop ON u.property_id = prop.id
