@@ -68,12 +68,36 @@ Then add the DNS records returned by Google Cloud for the domain.
 
 ## Deployment notes
 
-- Static hosts such as basic Firebase Hosting, Netlify static deploys, or
-  Cloudflare Pages without a Node backend will not serve the API routes.
+- Static hosts such as basic Firebase Hosting or Netlify static deploys will
+  not serve the API routes. The tenant demo on Cloudflare Workers uses the
+  static showcase build (`VITE_STATIC_SHOWCASE=true`) and does not need the
+  Express API.
 - The bundled SQLite database is suitable for demos and single-container
   launches. Production data should use a mounted volume or managed database.
 - View the original AI Studio applet at
   https://ai.studio/apps/85f4144f-dabc-4ffc-b990-b6a65dc46dad.
+
+## Tenant demo on Cloudflare (`tenant.rent-ruby.com`)
+
+This is the owner walkthrough for the tenant lounge. It is not the live
+marketing site. Visiting `tenant.rent-ruby.com` opens the Tenant Lounge as
+**McDuff Gillis, Unit 105**. Internal staff file lights (green / orange / red)
+stay on the admin rent roll and a staff-only strip; they are not shown as a
+resident-facing status.
+
+```bash
+npm run deploy:tenant-demo
+```
+
+That builds the static showcase and deploys the existing `rent-ruby` Worker
+with SPA asset serving. Preview URL is `*.workers.dev`. Attach the custom
+domain in the Cloudflare dashboard (or `wrangler domains add tenant.rent-ruby.com`)
+when DNS for `rent-ruby.com` is ready:
+
+- `tenant.rent-ruby.com` → this Worker
+- Green = paperwork up to date
+- Orange = waiting on a signed lease or notice
+- Red = rent 60+ days past due and/or possible unauthorized subletter
 
 ## Emergency owner showcase on Firebase Hosting
 

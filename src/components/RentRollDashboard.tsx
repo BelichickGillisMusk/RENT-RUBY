@@ -17,6 +17,8 @@ import {
   Gavel
 } from 'lucide-react';
 import { ConfirmationModal } from './ConfirmationModal';
+import { ComplianceLegend, ComplianceLight } from './ComplianceLight';
+import { daysPastDue, deriveComplianceStatus, type ComplianceStatus } from '../lib/tenantCompliance';
 
 interface RentRollItem {
   id: number;
@@ -35,6 +37,9 @@ interface RentRollItem {
   photos: string | null;
   needs_reply: number;
   last_tenant_activity_at: string | null;
+  pending_lease_docs: number;
+  unsigned_notices: number;
+  sublet_flags: number;
 }
 
 interface User {
@@ -417,6 +422,16 @@ Are you absolutely sure you want to proceed?`,
   };
 
   const isOwnerOrAccounting = user?.role === 'OWNER' || user?.role === 'ACCOUNTING';
+
+  const unitCompliance = (unit: RentRollItem): ComplianceStatus =>
+    deriveComplianceStatus({
+      vacant: unit.status !== 'Occupied' || !unit.tenant_name,
+      balanceDue: unit.balance_due ?? 0,
+      daysPastDue: daysPastDue(unit.last_payment_date, unit.balance_due ?? 0),
+      pendingSignature: (unit.pending_lease_docs ?? 0) > 0,
+      unsignedNotices: (unit.unsigned_notices ?? 0) > 0,
+      subletRisk: (unit.sublet_flags ?? 0) > 0,
+    });
   const isGM = user?.role === 'GM';
   const isGMOrOwner = user?.role === 'GM' || user?.role === 'OWNER';
 
@@ -546,8 +561,9 @@ Are you absolutely sure you want to proceed?`,
           <div>
             <h2 className="text-4xl font-black text-app-text tracking-tighter uppercase">Active Rent Roll</h2>
             <p className="text-app-text/40 font-mono text-xs uppercase tracking-widest mt-1">
-              {isOwnerOrAccounting ? 'Owner/Accounting Control Level' : 'GM View Level'} • {data.length} Units Total
+              {isOwnerOrAccounting ? 'Owner/Accounting Control Level' : 'GM View Level'} • {data.length} Units Total • Internal file lights
             </p>
+            <ComplianceLegend compact />
           </div>
           <div className="flex gap-4">
             <div className="relative">
@@ -568,6 +584,7 @@ Are you absolutely sure you want to proceed?`,
                 <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Unit</th>
                 <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Status</th>
                 <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Tenant</th>
+                <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Staff light</th>
                 <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Rent</th>
                 <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Balance</th>
                 <th className="px-10 py-8 text-[11px] font-black text-app-text/30 uppercase tracking-[0.2em]">Last Payment</th>
@@ -622,6 +639,9 @@ Are you absolutely sure you want to proceed?`,
                         <span className="text-sm text-app-text/30 italic font-mono font-bold tracking-widest">VACANT</span>
                       )}
                     </div>
+                  </td>
+                  <td className="px-10 py-10">
+                    <ComplianceLight status={unitCompliance(unit)} size="sm" showReason={false} />
                   </td>
                   <td className="px-10 py-10">
                     <span className="text-2xl font-black text-app-text font-mono tracking-tighter">${formatCurrency(unit.rent_amount)}</span>
@@ -712,6 +732,9 @@ Are you absolutely sure you want to proceed?`,
                     <p className="text-app-text/40 font-mono text-sm uppercase tracking-widest">
                       {selectedUnit.tenant_name || 'VACANT'} • Silverback Intelligence Active
                     </p>
+                    <div className="mt-3">
+                      <ComplianceLight status={unitCompliance(selectedUnit)} size="sm" />
+                    </div>
                     <span className="w-1 h-1 rounded-full bg-app-border" />
                     <span className="text-xs font-black text-app-accent uppercase tracking-widest">{selectedUnit.neighborhood || 'Mosswood'}</span>
                   </div>
